@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +28,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class ComposeTweetActivity extends Activity {
 
+	public static int MAX_TWEET_SIZE = 140;
+	
 	private static String userHandle;
 	private static String profileImageUrl;
 	private static boolean userProfileInitialized = false;
@@ -32,6 +37,7 @@ public class ComposeTweetActivity extends Activity {
 	private Button btnTweet;
 	private Button btnCancel;
 	private EditText etTweetBody;
+	private TextView tvRemainingCharsCount;
 	private TwitterClient client;
 	
 	@Override
@@ -72,7 +78,30 @@ public class ComposeTweetActivity extends Activity {
 
 			}
 		});
+			
+		tvRemainingCharsCount = (TextView) findViewById(R.id.tvRemainingCharsCount); 
+		
 		etTweetBody = (EditText) findViewById(R.id.etTweetBody);
+		etTweetBody.setMovementMethod(new ScrollingMovementMethod());
+		etTweetBody.addTextChangedListener(new TextWatcher() {		
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				int currCharCount = s.length();
+				int remainingChars = MAX_TWEET_SIZE - currCharCount;
+				tvRemainingCharsCount.setText(Integer.valueOf(remainingChars).toString());		
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub			
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub			
+			}
+		});
 		
 		client = TwitterApplication.getRestClient();
 	}

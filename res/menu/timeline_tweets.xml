@@ -6,7 +6,15 @@
         android:icon="@drawable/ic_action_compose"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="@string/action_settings">
+        android:title="@string/action_compose">
+    </item>
+    
+     <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_action_refresh"
+        android:orderInCategory="99"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_refresh">
     </item>
 
 </menu>

@@ -33,6 +33,7 @@ public class TimelineActivity extends Activity {
 	private ArrayAdapter<Tweet> aTweets;
 	private ListView lvTweets;
 	private PopulateTimeLine populateTimeLine;
+	private String userHandle;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +56,9 @@ public class TimelineActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.compose_tweet, menu);
-		MenuItem composeItem = menu.findItem(R.id.action_compose);	
+		getMenuInflater().inflate(R.menu.timeline_tweets, menu);
+		MenuItem composeItem = menu.findItem(R.id.action_compose);
+		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		return true;
 	}
 
@@ -72,8 +74,13 @@ public class TimelineActivity extends Activity {
 			// Pass image data in the intent
 			i.putExtra("user_handle", "@user");
 			// Launch the new activity
-			startActivityForResult(i, REQUEST_CODE);
-					
+			startActivityForResult(i, REQUEST_CODE);					
+			return true;
+		}
+		
+		if (id == R.id.action_refresh) {
+			populateTimeLine.reset();
+			populateTimeLine.fetchMore(FetchDirection.FORWARD);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -93,7 +100,8 @@ public class TimelineActivity extends Activity {
 			@Override
 			public void onSuccess(JSONObject response) {
 				try {
-					String userHandle = "@" + response.getString("screen_name");
+					userHandle = "@" + response.getString("screen_name");
+					getActionBar().setTitle(userHandle);
 					String profileImageUrl = response.getString("profile_image_url");
 					storeUserProfile(userHandle, profileImageUrl);
 				} catch (JSONException e) {
