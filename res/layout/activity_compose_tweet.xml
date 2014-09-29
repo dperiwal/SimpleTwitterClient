@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="${relativePackage}.${activityClass}" >
+
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/cancel_text" 
+        android:layout_margin="5dp"/>
+
+    <Button
+        android:id="@+id/btnTweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btnCancel"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/btnCancel"
+        android:layout_margin="5dp"
+        android:background="#55ACEE"
+        android:onClick="postTweet"
+        android:text="@string/tweet_text"
+        android:textColor="#FFFFFF" />
+    
+    <LinearLayout
+        android:id="@+id/ivTweeterContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/btnCancel" >
+
+        <ImageView
+            android:id="@+id/ivTweeter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:src="@drawable/ic_launcher" />
+
+        <TextView
+            android:id="@+id/tvTweeterHandle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/handle_text" />
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/etTweetBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/ivTweeterContainer"
+        android:layout_marginTop="23dp"
+        android:ems="10" 
+        android:inputType="textMultiLine">
+        <requestFocus />
+    </EditText>
+
+</RelativeLayout>
