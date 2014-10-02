@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -54,6 +55,10 @@ public class TimelineActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// MUST request the feature before setting content view
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); 
+        
 		setContentView(R.layout.activity_timeline);
 		
 		setupUserProfile();

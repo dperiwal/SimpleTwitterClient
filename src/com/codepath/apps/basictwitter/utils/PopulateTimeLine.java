@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 
-import android.content.Context;
+import android.app.Activity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.Log;
@@ -43,13 +43,13 @@ public class PopulateTimeLine {
 	private long idHigherThan;
 	private long idLowerThan; 
 	private boolean freshStart;
-	private Context context;
+	private Activity containingActivity;
 	private SwipeRefreshLayout swipeContainer;
 	
-	public PopulateTimeLine(Context context, ArrayList<Tweet> tweets,
+	public PopulateTimeLine(Activity containingActivity, ArrayList<Tweet> tweets,
 			ArrayAdapter<Tweet> aTweets, ListView lvTweets) {
 		super();
-		this.context = context;
+		this.containingActivity = containingActivity;
 		this.tweets = tweets;
 		this.aTweets = aTweets;
 		this.lvTweets = lvTweets;
@@ -66,7 +66,6 @@ public class PopulateTimeLine {
 		idLowerThan = Long.MAX_VALUE; // Will be reset after the first fetch	
 	}
 	
-	
 	/**
 	 * Fetches next set of tweets from the server in either forward or 
 	 * backward direction based on the parameter.
@@ -76,25 +75,30 @@ public class PopulateTimeLine {
 	public void fetchMore(final FetchDirection direction) {
      /*    	Log.d("Debug", "In fetchMore, higherThan(" + idHigherThan + 
 				"), lowerThan(" + idLowerThan + ")");*/
-    	if (!Utils.isNetworkAvailable(context)) {
+		containingActivity.setProgressBarIndeterminateVisibility(true);
+    	if (!Utils.isNetworkAvailable(containingActivity)) {
 			Log.i("INFO", Utils.NETWORK_UNAVAILABLE_MSG);
-			Toast.makeText(context, Utils.NETWORK_UNAVAILABLE_MSG, Toast.LENGTH_SHORT).show();
+			Toast.makeText(containingActivity, Utils.NETWORK_UNAVAILABLE_MSG, Toast.LENGTH_SHORT).show();
 			if (direction == FetchDirection.FORWARD) {
 			    swipeContainer.setRefreshing(false); 
 			}			
 			if (TwitterApplication.USE_ACTIVE_ANDROID) {
 				// Get tweets from the local database
 				List<Tweet> newTweets = getTweetsFromLocalDB(direction,
-						idHigherThan, idLowerThan);
+						idHigherThan, idLowerThan);		
 				updateAdapter(direction, newTweets);
 			}
+			containingActivity.setProgressBarIndeterminateVisibility(false);
+			
 			return;
 		}
+    	
 		client.getHomeTimeline(direction, TWEET_COUNT, idHigherThan, idLowerThan, 
 				new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(JSONArray json) {
 				// Log.d("Debug", "In populateTimeline:onSuccess, new tweets=" + json.length());
+				containingActivity.setProgressBarIndeterminateVisibility(false);
 				if (direction == FetchDirection.FORWARD) {
 				    swipeContainer.setRefreshing(false); 
 				}
@@ -104,13 +108,14 @@ public class PopulateTimeLine {
 				// Log.d("Debug",json.toString());
 				ArrayList<Tweet> newTweets = Tweet.fromJSONArray(json);
 
-				updateAdapter(direction, newTweets);
+				updateAdapter(direction, newTweets);		
 			}
 			
 			@Override
 			public void onFailure(Throwable e, String error) {
+				containingActivity.setProgressBarIndeterminateVisibility(false);
 				Log.d("Debug", "in populateTimeline:onFailure");
-				Log.d("Debug", error);
+				Log.d("Debug", error);			
 			}
 		});
 	}

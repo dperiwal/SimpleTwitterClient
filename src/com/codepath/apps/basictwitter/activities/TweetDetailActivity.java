@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,11 +27,12 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
- * This activity shows a chosen tweet in detail.
- * It also helps in composing a reply and sending it.
+ * This activity shows a chosen tweet in detail. It also helps in composing a
+ * reply and sending it.
  * <p>
+ * 
  * @author Damodar Periwal
- *
+ * 
  */
 public class TweetDetailActivity extends Activity {
 	private Tweet currTweet;
@@ -38,22 +40,23 @@ public class TweetDetailActivity extends Activity {
 	private TextView tvTweeterName;
 	private TextView tvTweeterHandle;
 	private TextView tvTweetBody;
-	private ImageView ivMedia ;
+	private ImageView ivMedia;
 	private TextView tvTimeStamp;
 	private TextView tvRetweetCount;
 	private TextView tvFavoriteCount;
+	private ViewGroup rlTweetReplyLayout;
 	private EditText etTweetReply;
 	private Button btnPostReply;
 	private Button btnCancelReply;
 	private TextView tvRemainingCharsCount;
 	private TextView tvRemainingCharsLabel;
-	private static ImageLoader imageLoader = ImageLoader.getInstance();	
-	
+	private static ImageLoader imageLoader = ImageLoader.getInstance();
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tweet_detail);
-		setupResources();		
+		setupResources();
 		currTweet = (Tweet) getIntent().getSerializableExtra("tweet");
 		displayTweet(currTweet);
 	}
@@ -67,63 +70,66 @@ public class TweetDetailActivity extends Activity {
 		tvTimeStamp = (TextView) findViewById(R.id.tvTimeStamp);
 		tvRetweetCount = (TextView) findViewById(R.id.tvRetweetCount);
 		tvFavoriteCount = (TextView) findViewById(R.id.tvFavoriteCount);
-		etTweetReply = (EditText) findViewById(R.id.etTweetReply);
 		
+		rlTweetReplyLayout = (ViewGroup) findViewById(R.id.rlTweetReplyLayout);
+		etTweetReply = (EditText) findViewById(R.id.etTweetReply);
 		etTweetReply.setMovementMethod(new ScrollingMovementMethod());
-		etTweetReply.addTextChangedListener(new TextWatcher() {		
+		etTweetReply.addTextChangedListener(new TextWatcher() {
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
 				int currCharCount = s.length();
-				int remainingChars = ComposeTweetActivity.MAX_TWEET_SIZE - currCharCount;
-				tvRemainingCharsCount.setText(Integer.valueOf(remainingChars).toString());		
+				int remainingChars = ComposeTweetActivity.MAX_TWEET_SIZE
+						- currCharCount;
+				tvRemainingCharsCount.setText(Integer.valueOf(remainingChars)
+						.toString());
 			}
-			
+
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
-				// TODO Auto-generated method stub			
+				// TODO Auto-generated method stub
 			}
-			
+
 			@Override
 			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub			
+				// TODO Auto-generated method stub
 			}
 		});
-		
+
 		tvRemainingCharsCount = (TextView) findViewById(R.id.tvRemainingCharsCount);
-		tvRemainingCharsLabel = (TextView) findViewById(R.id.tvRemainingCharsLabel);		
+		tvRemainingCharsLabel = (TextView) findViewById(R.id.tvRemainingCharsLabel);
 		btnPostReply = (Button) findViewById(R.id.btnPostReply);
 		btnCancelReply = (Button) findViewById(R.id.btnCancelReply);
 	}
-	
+
 	private void displayTweet(Tweet tweet) {
-		imageLoader.displayImage(tweet.getUser().getProfileImageUrl(), ivTweeterImage);
+		imageLoader.displayImage(tweet.getUser().getProfileImageUrl(),
+				ivTweeterImage);
 		tvTweeterName.setText(tweet.getUser().getName());
 		tvTweeterHandle.setText("@" + tweet.getUser().getScreenName());
 		tvTweetBody.setText(tweet.getBody());
-		
+
 		String mediaUrl = tweet.getMediaURL();
 		Log.i("INFO", "mediaURL is " + mediaUrl);
 		if (mediaUrl != null) {
 			ivMedia.setVisibility(View.VISIBLE);
-		    imageLoader.displayImage(mediaUrl, ivMedia);
+			imageLoader.displayImage(mediaUrl, ivMedia);
 		} else {
 			ivMedia.setVisibility(View.GONE);
 		}
 		tvTimeStamp.setText(tweet.getCreatedAt());
-		tvRetweetCount.setText(Integer.valueOf(tweet.getRetweetCount()).toString());
-		tvFavoriteCount.setText(Integer.valueOf(tweet.getFavoriteCount()).toString());
-		
+		tvRetweetCount.setText(Integer.valueOf(tweet.getRetweetCount())
+				.toString());
+		tvFavoriteCount.setText(Integer.valueOf(tweet.getFavoriteCount())
+				.toString());
+
 		setReplyVisibility(View.GONE);
 	}
-	
+
 	private void setReplyVisibility(int visibility) {
+		rlTweetReplyLayout.setVisibility(visibility);
 		etTweetReply.setText("");
-		etTweetReply.setVisibility(visibility);
-		btnPostReply.setVisibility(visibility);
-		btnCancelReply.setVisibility(visibility);
-		tvRemainingCharsCount.setVisibility(visibility);
-		tvRemainingCharsLabel.setVisibility(visibility);
 	}
 
 	@Override
@@ -144,41 +150,43 @@ public class TweetDetailActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	// On Reply button press
 	public void replyTweet(View view) {
 		setReplyVisibility(View.VISIBLE);
 	}
-	
+
 	// On Send button press
 	public void postReply(View view) {
 		String reply = etTweetReply.getText().toString();
 		if (Utils.isNullOrEmpty(reply)) {
-			Toast.makeText(this, "Can't post an empty reply", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Can't post an empty reply",
+					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		
-		TwitterClient client = TwitterApplication.getRestClient();
-		
-		client.postTweet(reply, currTweet.getTweetId(), new JsonHttpResponseHandler() {
-			@Override
-			public void onSuccess(JSONObject response) {
-				Toast.makeText(getBaseContext(), "Reply sent.", Toast.LENGTH_SHORT).show();
-				setReplyVisibility(View.GONE);	
-			}
 
-			@Override
-			public void onFailure(Throwable e, String error) {
-				Log.d("Debug", "in postTweet:onFailure");
-				Log.d("Debug", error);
-				setReplyVisibility(View.GONE);	
-			}
-		});
+		TwitterClient client = TwitterApplication.getRestClient();
+
+		client.postTweet(reply, currTweet.getTweetId(),
+				new JsonHttpResponseHandler() {
+					@Override
+					public void onSuccess(JSONObject response) {
+						Toast.makeText(getBaseContext(), "Reply sent.",
+								Toast.LENGTH_SHORT).show();
+						setReplyVisibility(View.GONE);
+					}
+
+					@Override
+					public void onFailure(Throwable e, String error) {
+						Log.d("Debug", "in postTweet:onFailure");
+						Log.d("Debug", error);
+						setReplyVisibility(View.GONE);
+					}
+				});
 	}
-	
+
 	// On Cancel button press
 	public void cancelReply(View view) {
-		setReplyVisibility(View.GONE);		
+		setReplyVisibility(View.GONE);
 	}
-	
 }
