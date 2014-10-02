@@ -121,7 +121,7 @@ public class Tweet extends Model implements Serializable {
 				tweets.add(tweet);
 			}
 		}
-		Log.i("INFO", "Number of new tweets=" + array.length());
+		// Log.i("INFO", "Number of new tweets=" + array.length());
 		return tweets;
 	}
 	
