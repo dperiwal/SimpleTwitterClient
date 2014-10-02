@@ -113,7 +113,7 @@ public class ComposeTweetActivity extends Activity {
 			return;
 		}
 		
-		client.postTweet(tweet, new JsonHttpResponseHandler() {
+		client.postTweet(tweet, 0, new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(JSONObject response) {
 				Intent i = new Intent();

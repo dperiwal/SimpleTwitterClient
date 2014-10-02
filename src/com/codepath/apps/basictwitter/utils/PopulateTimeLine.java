@@ -1,6 +1,7 @@
 package com.codepath.apps.basictwitter.utils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 
@@ -23,6 +24,9 @@ import com.loopj.android.http.JsonHttpResponseHandler;
  * the list view and the associated array adapter, it can fetch 
  * more tweets in forward direction as well as in backward direction.
  * 
+ * It is designed to get tweets from a local data source in case of 
+ * any network error.
+ * 
  * @author Damodar Periwal
  *
  */
@@ -30,6 +34,8 @@ public class PopulateTimeLine {
 	public enum FetchDirection {
 		FORWARD, BACKWARD		
 	}	
+	public int TWEET_COUNT = 25; // For every fetch
+	
 	private TwitterClient client;
 	private ArrayList<Tweet> tweets;
 	private ArrayAdapter<Tweet> aTweets;
@@ -38,7 +44,7 @@ public class PopulateTimeLine {
 	private long idLowerThan; 
 	private boolean freshStart;
 	private Context context;
-	SwipeRefreshLayout swipeContainer;
+	private SwipeRefreshLayout swipeContainer;
 	
 	public PopulateTimeLine(Context context, ArrayList<Tweet> tweets,
 			ArrayAdapter<Tweet> aTweets, ListView lvTweets) {
@@ -60,15 +66,32 @@ public class PopulateTimeLine {
 		idLowerThan = Long.MAX_VALUE; // Will be reset after the first fetch	
 	}
 	
+	
+	/**
+	 * Fetches next set of tweets from the server in either forward or 
+	 * backward direction based on the parameter.
+	 * 
+	 * @param direction Forward or Backward
+	 */
 	public void fetchMore(final FetchDirection direction) {
-    	Log.d("Debug", "In fetchMore, higherThan(" + idHigherThan + 
-				"), lowerThan(" + idLowerThan + ")");
+     /*    	Log.d("Debug", "In fetchMore, higherThan(" + idHigherThan + 
+				"), lowerThan(" + idLowerThan + ")");*/
     	if (!Utils.isNetworkAvailable(context)) {
 			Log.i("INFO", Utils.NETWORK_UNAVAILABLE_MSG);
 			Toast.makeText(context, Utils.NETWORK_UNAVAILABLE_MSG, Toast.LENGTH_SHORT).show();
+			if (direction == FetchDirection.FORWARD) {
+			    swipeContainer.setRefreshing(false); 
+			}			
+			if (TwitterApplication.USE_ACTIVE_ANDROID) {
+				// Get tweets from the local database
+				List<Tweet> newTweets = getTweetsFromLocalDB(direction,
+						idHigherThan, idLowerThan);
+				updateAdapter(direction, newTweets);
+			}
 			return;
 		}
-		client.getHomeTimeline(direction, idHigherThan, idLowerThan, new JsonHttpResponseHandler() {
+		client.getHomeTimeline(direction, TWEET_COUNT, idHigherThan, idLowerThan, 
+				new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(JSONArray json) {
 				// Log.d("Debug", "In populateTimeline:onSuccess, new tweets=" + json.length());
@@ -81,19 +104,7 @@ public class PopulateTimeLine {
 				// Log.d("Debug",json.toString());
 				ArrayList<Tweet> newTweets = Tweet.fromJSONArray(json);
 
-				if (direction == FetchDirection.FORWARD) { // we have got newer tweets
-					updateIdHigherThan(newTweets);			
-				    tweets.addAll(0, newTweets); // prepend the new tweets
-				    aTweets.notifyDataSetChanged();
-				}
-				else { // We have got older tweets
-					updateIdLowerThan(newTweets);
-					aTweets.addAll(newTweets); // append
-				}
-				if (freshStart) { // Very first time, assumes forward fetch has happened
-					updateIdLowerThan(newTweets);
-					freshStart = false;
-				}
+				updateAdapter(direction, newTweets);
 			}
 			
 			@Override
@@ -116,6 +127,22 @@ public class PopulateTimeLine {
 			}
 		});
 	}
+	
+	private void updateAdapter(FetchDirection direction, List<Tweet> newTweets) {	
+		if (direction == FetchDirection.FORWARD) { // we have got newer tweets
+			updateIdHigherThan(newTweets);			
+		    tweets.addAll(0, newTweets); // prepend the new tweets
+		    aTweets.notifyDataSetChanged();
+		}
+		else { // We have got older tweets
+			updateIdLowerThan(newTweets);
+			aTweets.addAll(newTweets); // append
+		}
+		if (freshStart) { // Very first time, assumes forward fetch has happened
+			updateIdLowerThan(newTweets);
+			freshStart = false;
+		}	
+	}
 		
 	public void startPopulatingTimeLine() {
 		// Log.d("Debug", "In startPopulatingTimeLine");
@@ -133,23 +160,35 @@ public class PopulateTimeLine {
 		fetchMore(FetchDirection.FORWARD);; // First time
 	}
 	
-	private void updateIdHigherThan(ArrayList<Tweet> newTweets) {
+	private void updateIdHigherThan(List<Tweet> newTweets) {
 		for (int i = 0; i < newTweets.size(); i++) {
-			long newId = newTweets.get(i).getId();
+			long newId = newTweets.get(i).getTweetId();
 			if (newId > idHigherThan) {
 				idHigherThan = newId;
 			}
 		}
-		Log.d("Debug", "New idHigherThan=" + idHigherThan);
+		// Log.d("Debug", "New idHigherThan=" + idHigherThan);
 	}
 	
-	private void updateIdLowerThan(ArrayList<Tweet> newTweets) {
+	private void updateIdLowerThan(List<Tweet> newTweets) {
 		for (int i = 0; i < newTweets.size(); i++) {
-			long newId = newTweets.get(i).getId();
+			long newId = newTweets.get(i).getTweetId();
 			if (newId < idLowerThan) {
 				idLowerThan = newId;
 			}
 		}		
-		Log.d("Debug", "New idLowerThan=" + idLowerThan);
+		// Log.d("Debug", "New idLowerThan=" + idLowerThan);
+	}
+	
+	private List<Tweet> getTweetsFromLocalDB(FetchDirection direction, long idHigherThan, long idLowerThan) {
+		String predicate;
+		if (direction == FetchDirection.FORWARD) {
+			predicate = "tweet_id > " + Long.valueOf(idHigherThan).toString();
+		} else {
+			predicate = "tweet_id < " + Long.valueOf(idLowerThan).toString();
+		}	
+		// System.out.println("Getting tweets from the local database, predicate=" + predicate);
+		// Log.i("INFO", "Getting tweets from the local database, predicate=" + predicate);
+		return Tweet.getAll(predicate);	
 	}
 }

@@ -15,6 +15,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -26,6 +29,19 @@ import com.codepath.apps.basictwitter.utils.PopulateTimeLine;
 import com.codepath.apps.basictwitter.utils.PopulateTimeLine.FetchDirection;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+/**
+ * This activity shows a list of tweets in my timeline. 
+ * The list of tweets is scrollable - both forward and backward.
+ * 
+ * This activity also allows for composing new tweets by pressing the compose
+ * button on the action bar. 
+ * 
+ * Pressing on a particular tweet takes to a detail view where the tweet 
+ * can be replied also. 
+ *  
+ * @author Damodar Periwal
+ *
+ */
 public class TimelineActivity extends Activity {
 	static final int REQUEST_CODE = 50;
 	
@@ -46,6 +62,9 @@ public class TimelineActivity extends Activity {
 		tweets = new ArrayList<Tweet>();
 		aTweets = new TweetArrayAdapter(this, tweets);
 		lvTweets.setAdapter(aTweets);
+		
+		setupListViewListener();
+		
 		SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
 		
 		populateTimeLine = new PopulateTimeLine(this, tweets, aTweets, lvTweets);	
@@ -53,12 +72,39 @@ public class TimelineActivity extends Activity {
 		populateTimeLine.startPopulatingTimeLine();
 	}
 	
+	/**
+	 * Sets up click listeners to delete or edit a TODO item in a list.
+	 */
+	private void setupListViewListener() {		
+		// Set up a click listener to view the details of a tweet in a separate activity. 
+		lvTweets.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				launchTweetDetailActivity(position);			
+			}
+			
+			private void launchTweetDetailActivity(int position) {
+				if (position < 0) { // possible?
+					return;
+				}
+				// Set up an intent for EditItemActivity with the parameter values
+				// of the position and the value of the item at the selected position
+				Tweet tweet = aTweets.getItem(position);
+				Intent i = new Intent(TimelineActivity.this, TweetDetailActivity.class);
+				i.putExtra("tweet", tweet);
+				startActivity(i);			
+			}		
+		});
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.timeline_tweets, menu);
-		MenuItem composeItem = menu.findItem(R.id.action_compose);
-		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
+		// MenuItem composeItem = menu.findItem(R.id.action_compose);
+		// MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		return true;
 	}
 
@@ -124,6 +170,7 @@ public class TimelineActivity extends Activity {
 		edit.putString("userHandle", userHandle);
 		edit.putString("profileImageUrl", profileImageUrl);
 		edit.commit();
-		Log.d("Debug", "userHandle=" + userHandle + ", profileImageUrl=" + profileImageUrl);
+		// Log.d("Debug", "userHandle=" + userHandle + ", profileImageUrl=" + profileImageUrl);
 	}
+	
 }

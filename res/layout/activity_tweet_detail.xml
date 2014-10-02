@@ -1,0 +1,171 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="5dp"
+    android:paddingTop="5dp"
+    tools:context="com.codepath.apps.basictwitter.activities.TweetDetailActivity" >
+
+    <ImageView
+        android:id="@+id/ivTweeterImage"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_launcher" />
+
+    <TextView
+        android:id="@+id/tvTweeterName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/ivTweeterImage"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/ivTweeterImage"
+        android:text="@string/name_label"
+        android:textSize="12sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvTweeterHandle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvTweeterName"
+        android:layout_below="@+id/tvTweeterName"
+        android:text="@string/handle_label"
+        android:textColor="#888888"
+        android:textSize="10sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvTweetBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tvTweeterHandle"
+        android:layout_marginTop="10dp"
+        android:text="Tweet Body" />
+
+    <ImageView
+        android:id="@+id/ivMedia"
+        android:layout_width="wrap_content"
+        android:layout_height="120dp"
+        android:layout_alignLeft="@+id/tvTweetBody"
+        android:layout_alignRight="@+id/tvTweetBody"
+        android:layout_below="@+id/tvTweetBody"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/ic_launcher" />
+
+    <TextView
+        android:id="@+id/tvTimeStamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/ivMedia"
+        android:layout_marginTop="10dp"
+        android:text="@string/creation_time_text"
+        android:textColor="#888888"
+        android:textSize="10sp" />
+
+    <LinearLayout
+        android:id="@+id/feedbackLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tvTimeStamp"
+        android:layout_marginTop="10dp" >
+
+        <Button
+            android:id="@+id/btnReplyTweet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_action_reply"
+            android:onClick="replyTweet" />
+
+        <TextView
+            android:id="@+id/tvRetweetCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_marginLeft="10dp"
+            android:drawableLeft="@drawable/ic_twitter_retweets"
+            android:drawablePadding="5dp"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvRetweetLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/retweet_label"
+            android:textColor="#888888"
+            android:textSize="10sp" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/tvFavoriteCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:drawableLeft="@drawable/ic_twitter_favorite"
+            android:drawablePadding="5dp"
+            android:textSize="10sp"
+            android:textStyle="bold" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/tvFoviriteLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/favorite_label"
+            android:textColor="#888888"
+            android:textSize="10sp" >
+        </TextView>
+    </LinearLayout>
+    
+    <EditText
+        android:id="@+id/etTweetReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/feedbackLayout"
+        android:layout_marginTop="5dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:hint="Please type your reply here..."
+        android:visibility="invisible" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/btnPostReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/etTweetReply"
+        android:background="#00000000"
+        android:drawablePadding="5dp"
+        android:drawableStart="@drawable/ic_action_send_now"
+        android:onClick="postReply" 
+        android:visibility="invisible"/>
+    
+     <Button
+        android:id="@+id/btnCancelReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/btnPostReply"
+        android:layout_below="@+id/etTweetReply"
+        android:background="#00000000"
+        android:drawablePadding="5dp"
+        android:drawableStart="@drawable/ic_action_cancel"
+        android:onClick="cancelReply" 
+        android:visibility="invisible"/>
+
+</RelativeLayout>

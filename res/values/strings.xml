@@ -13,11 +13,14 @@
     <string name="creation_time_text">"Creation time"</string>
     <string name="tweet_body_text">"This is a tweet body"</string>
     <string name="title_activity_compose_tweet">Compose Tweet</string>
-    <string name="cancel_text">Cancel</string> 
+    <string name="cancel_text">Cancel</string>
     <string name="tweet_text">Tweet</string>
+    <string name="type_tweet_text">Type your tweet here...</string>
     <string name="handle_text">"@handle"</string>
     <string name="remaining_chars_text">Remaining chars</string>
     <string name="max_tweet_chars_text">140</string>
-    
+    <string name="title_activity_tweet_detail">Tweet</string>
+    <string name="retweet_label">"RETWEETS"</string>
+    <string name="favorite_label">"FAVORITES"</string>
 
 </resources>

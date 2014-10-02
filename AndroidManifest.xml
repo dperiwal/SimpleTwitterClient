@@ -20,15 +20,20 @@
         android:theme="@style/AppTheme" >
         <meta-data
             android:name="AA_DB_NAME"
-            android:value="RestClient.db" />
+            android:value="SimpleTwitter.db" />
         <meta-data
             android:name="AA_DB_VERSION"
             android:value="1" />
 
+        <provider
+            android:name="com.activeandroid.content.ContentProvider"
+            android:authorities="com.codepath"
+            android:exported="false" />
+
         <activity
             android:name=".activities.LoginActivity"
-            android:noHistory="true"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:noHistory="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,12 +52,16 @@
         </activity>
         <activity
             android:name=".activities.TimelineActivity"
-            android:label="@string/title_activity_timeline" 
-            android:icon="@drawable/ic_bird_white_32">
+            android:icon="@drawable/ic_bird_white_32"
+            android:label="@string/title_activity_timeline" >
         </activity>
         <activity
-            android:name="com.codepath.apps.basictwitter.activities.ComposeTweetActivity"
+            android:name=".activities.ComposeTweetActivity"
             android:label="@string/title_activity_compose_tweet" >
+        </activity>
+        <activity
+            android:name="com.codepath.apps.basictwitter.activities.TweetDetailActivity"
+            android:label="@string/title_activity_tweet_detail" >
         </activity>
     </application>
 

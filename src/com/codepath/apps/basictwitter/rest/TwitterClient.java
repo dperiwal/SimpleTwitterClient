@@ -59,7 +59,8 @@ public class TwitterClient extends OAuthBaseClient {
 	 * @param idLowerThan Provides max_id value (tweets with lower ids should be fetched)
 	 * @param handler Callback
 	 */
-	public void getHomeTimeline(FetchDirection direction, long idHigherThan, long idLowerThan, AsyncHttpResponseHandler handler) {
+	public void getHomeTimeline(FetchDirection direction, int count, long idHigherThan, long idLowerThan, 
+			AsyncHttpResponseHandler handler) {
 		String apiUrl = getApiUrl("statuses/home_timeline.json");
 		RequestParams params = new RequestParams();
 		if (direction == FetchDirection.FORWARD) {
@@ -67,13 +68,17 @@ public class TwitterClient extends OAuthBaseClient {
 		} else {
 			params.put("max_id", Long.valueOf(idLowerThan - 1).toString());
 		}
+		params.put("count",  Integer.valueOf(count).toString());
 		client.get(apiUrl, params, handler);	
 	}
 		
-   public void postTweet(String tweet, AsyncHttpResponseHandler handler) {
+   public void postTweet(String tweet, long inReplyToStatusId, AsyncHttpResponseHandler handler) {
 		String apiUrl = getApiUrl("statuses/update.json");
 		RequestParams params = new RequestParams();
 		params.put("status", tweet);
+		if (inReplyToStatusId != 0) {
+			params.put("in_reply_to_status_id", Long.valueOf(inReplyToStatusId).toString());
+		}
 		client.post(apiUrl, params, handler);	
 	}
    

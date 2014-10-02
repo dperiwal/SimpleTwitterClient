@@ -2,6 +2,7 @@ package com.codepath.apps.basictwitter;
 
 import android.content.Context;
 
+import com.activeandroid.ActiveAndroid;
 import com.codepath.apps.basictwitter.rest.TwitterClient;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -17,6 +18,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
  *     
  */
 public class TwitterApplication extends com.activeandroid.app.Application {
+	public static final boolean USE_ACTIVE_ANDROID = false;
 	private static Context context;
 
 	@Override
@@ -25,12 +27,16 @@ public class TwitterApplication extends com.activeandroid.app.Application {
 		TwitterApplication.context = this;
 
 		// Create global configuration and initialize ImageLoader with this configuration
-		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder().
-				cacheInMemory().cacheOnDisc().build();
-		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-		.defaultDisplayImageOptions(defaultOptions)
-		.build();
+		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+				.cacheInMemory().cacheOnDisc().build();
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
+				getApplicationContext()).defaultDisplayImageOptions(
+				defaultOptions).build();
 		ImageLoader.getInstance().init(config);
+		if (USE_ACTIVE_ANDROID) {
+			ActiveAndroid.initialize(this);
+			// ActiveAndroid.setLoggingEnabled(true);
+		}
 	}
 
 	public static TwitterClient getRestClient() {

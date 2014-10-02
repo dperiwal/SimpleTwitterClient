@@ -63,7 +63,8 @@
         android:maxLength="140"
         android:inputType="textMultiLine"
         android:maxLines = "4"
-        android:scrollbars = "vertical" >
+        android:scrollbars = "vertical" 
+        android:hint="@string/type_tweet_text" >
         <requestFocus />
     </EditText>
     

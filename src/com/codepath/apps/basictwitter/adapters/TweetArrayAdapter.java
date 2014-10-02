@@ -55,8 +55,10 @@ public class TweetArrayAdapter extends ArrayAdapter<Tweet> {
 			viewHolder.tvBody.setText("");
 		}
 		
-		ImageLoader imageLoader = ImageLoader.getInstance();
-		imageLoader.displayImage(tweet.getUser().getProfileImageUrl(), viewHolder.ivProfileImage);		
+		if (Utils.isNetworkAvailable(getContext())) {
+		    ImageLoader imageLoader = ImageLoader.getInstance();
+		    imageLoader.displayImage(tweet.getUser().getProfileImageUrl(), viewHolder.ivProfileImage);
+		}
 		viewHolder.tvUserName.setText(tweet.getUser().getName());
 		viewHolder.tvUserHandle.setText("@" + tweet.getUser().getScreenName());
 		viewHolder.tvCreationTime.setText(Utils.getRelativeTimeAgo(tweet.getCreatedAt()));
