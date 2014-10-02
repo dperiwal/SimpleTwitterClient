@@ -140,6 +140,7 @@
         android:layout_marginTop="5dp"
         android:ems="10"
         android:inputType="textMultiLine"
+        android:maxLength="140"
         android:hint="Please type your reply here..."
         android:visibility="invisible" >
 
@@ -169,5 +170,25 @@
         android:drawableStart="@drawable/ic_action_cancel"
         android:onClick="cancelReply" 
         android:visibility="invisible"/>
+     
+      <TextView
+        android:id="@+id/tvRemainingCharsCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etTweetReply"
+        android:layout_alignRight="@+id/etTweetReply"
+        android:text="@string/max_tweet_chars_text" 
+        android:visibility="invisible"/>
+
+     <TextView
+         android:id="@+id/tvRemainingCharsLabel"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignBaseline="@+id/tvRemainingCharsCount"
+         android:layout_alignBottom="@+id/tvRemainingCharsCount"
+         android:layout_marginRight="5dp"
+         android:layout_toLeftOf="@+id/tvRemainingCharsCount"
+         android:text="@string/remaining_chars_text"
+         android:visibility="invisible" />
 
 </RelativeLayout>

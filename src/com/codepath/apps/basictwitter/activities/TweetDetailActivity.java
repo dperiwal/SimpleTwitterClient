@@ -4,6 +4,9 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,6 +45,8 @@ public class TweetDetailActivity extends Activity {
 	private EditText etTweetReply;
 	private Button btnPostReply;
 	private Button btnCancelReply;
+	private TextView tvRemainingCharsCount;
+	private TextView tvRemainingCharsLabel;
 	private static ImageLoader imageLoader = ImageLoader.getInstance();	
 	
 	@Override
@@ -63,6 +68,30 @@ public class TweetDetailActivity extends Activity {
 		tvRetweetCount = (TextView) findViewById(R.id.tvRetweetCount);
 		tvFavoriteCount = (TextView) findViewById(R.id.tvFavoriteCount);
 		etTweetReply = (EditText) findViewById(R.id.etTweetReply);
+		
+		etTweetReply.setMovementMethod(new ScrollingMovementMethod());
+		etTweetReply.addTextChangedListener(new TextWatcher() {		
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				int currCharCount = s.length();
+				int remainingChars = ComposeTweetActivity.MAX_TWEET_SIZE - currCharCount;
+				tvRemainingCharsCount.setText(Integer.valueOf(remainingChars).toString());		
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub			
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub			
+			}
+		});
+		
+		tvRemainingCharsCount = (TextView) findViewById(R.id.tvRemainingCharsCount);
+		tvRemainingCharsLabel = (TextView) findViewById(R.id.tvRemainingCharsLabel);		
 		btnPostReply = (Button) findViewById(R.id.btnPostReply);
 		btnCancelReply = (Button) findViewById(R.id.btnCancelReply);
 	}
@@ -92,7 +121,9 @@ public class TweetDetailActivity extends Activity {
 		etTweetReply.setText("");
 		etTweetReply.setVisibility(visibility);
 		btnPostReply.setVisibility(visibility);
-		btnCancelReply.setVisibility(visibility);	
+		btnCancelReply.setVisibility(visibility);
+		tvRemainingCharsCount.setVisibility(visibility);
+		tvRemainingCharsLabel.setVisibility(visibility);
 	}
 
 	@Override
