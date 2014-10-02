@@ -1,0 +1,77 @@
+{
+  "id": 2833235263,
+  "id_str": "2833235263",
+  "name": "Damodar Codepath",
+  "screen_name": "CodepathDamodar",
+  "location": "",
+  "description": "Software Engineer",
+  "url": null,
+  "entities": {
+    "description": {
+      "urls": []
+    }
+  },
+  "protected": false,
+  "followers_count": 0,
+  "friends_count": 6,
+  "listed_count": 0,
+  "created_at": "Fri Sep 26 19:02:17 +0000 2014",
+  "favourites_count": 0,
+  "utc_offset": -25200,
+  "time_zone": "Pacific Time (US & Canada)",
+  "geo_enabled": false,
+  "verified": false,
+  "statuses_count": 18,
+  "lang": "en",
+  "status": {
+    "created_at": "Mon Sep 29 01:18:43 +0000 2014",
+    "id": 516396621563576300,
+    "id_str": "516396621563576321",
+    "text": "Tweet 13",
+    "source": "<a href="http://codepath.com" rel="nofollow">Codepath Simple App by Damodar</a>",
+    "truncated": false,
+    "in_reply_to_status_id": null,
+    "in_reply_to_status_id_str": null,
+    "in_reply_to_user_id": null,
+    "in_reply_to_user_id_str": null,
+    "in_reply_to_screen_name": null,
+    "geo": null,
+    "coordinates": null,
+    "place": null,
+    "contributors": null,
+    "retweet_count": 0,
+    "favorite_count": 0,
+    "entities": {
+      "hashtags": [],
+      "symbols": [],
+      "urls": [],
+      "user_mentions": []
+    },
+    "favorited": false,
+    "retweeted": false,
+    "lang": "en"
+  },
+  "contributors_enabled": false,
+  "is_translator": false,
+  "is_translation_enabled": false,
+  "profile_background_color": "C0DEED",
+  "profile_background_image_url": "http://abs.twimg.com/images/themes/theme1/bg.png",
+  "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
+  "profile_background_tile": false,
+  "profile_image_url": "http://pbs.twimg.com/profile_images/515578070451765248/aAshe3ml_normal.jpeg",
+  "profile_image_url_https": "https://pbs.twimg.com/profile_images/515578070451765248/aAshe3ml_normal.jpeg",
+  "profile_link_color": "0084B4",
+  "profile_sidebar_border_color": "C0DEED",
+  "profile_sidebar_fill_color": "DDEEF6",
+  "profile_text_color": "333333",
+  "profile_use_background_image": true,
+  "default_profile": true,
+  "default_profile_image": false,
+  "following": false,
+  "follow_request_sent": false,
+  "notifications": false
+}
+
+
+
+09-28 18:51:39.727: D/Debug(12001): userHandle=@CodepathDamodar, profileImageUrl=http://pbs.twimg.com/profile_images/515578070451765248/aAshe3ml_normal.jpeg
