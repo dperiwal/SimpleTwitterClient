@@ -16,19 +16,24 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.codepath.apps.basictwitter.R;
 import com.codepath.apps.basictwitter.TwitterApplication;
 import com.codepath.apps.basictwitter.adapters.TweetArrayAdapter;
 import com.codepath.apps.basictwitter.models.Tweet;
+import com.codepath.apps.basictwitter.persistence.AppSpecificJDXSetup;
+import com.codepath.apps.basictwitter.persistence.JDXPersistenceManagerImpl;
+import com.codepath.apps.basictwitter.persistence.PersistenceManager;
 import com.codepath.apps.basictwitter.utils.PopulateTimeLine;
 import com.codepath.apps.basictwitter.utils.PopulateTimeLine.FetchDirection;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.softwaretree.jdxandroid.JDXSetup;
 
 /**
  * This activity shows a list of tweets in my timeline. 
@@ -46,36 +51,68 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 public class TimelineActivity extends Activity {
 	static final int REQUEST_CODE = 50;
 	
+	private ProgressBar pb;
 	private ArrayList<Tweet> tweets;
 	private ArrayAdapter<Tweet> aTweets;
 	private ListView lvTweets;
 	private PopulateTimeLine populateTimeLine;
 	private String userHandle;
 	
+	JDXSetup jdxSetup = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		// MUST request the feature before setting content view
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); 
+        // requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); 
         
 		setContentView(R.layout.activity_timeline);
 		
 		setupUserProfile();
 		
+		pb = (ProgressBar) findViewById(R.id.pbLoading);
 		lvTweets = (ListView) findViewById(R.id.lvTweets);
 		tweets = new ArrayList<Tweet>();
 		aTweets = new TweetArrayAdapter(this, tweets);
 		lvTweets.setAdapter(aTweets);
+		Toast.makeText(this, "Inside TimelineActivity:OnCreate" , Toast.LENGTH_LONG).show();
 		
 		setupListViewListener();
 		
 		SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
 		
-		populateTimeLine = new PopulateTimeLine(this, tweets, aTweets, lvTweets);	
+		populateTimeLine = new PopulateTimeLine(this, tweets, aTweets, lvTweets, pb);
+		populateTimeLine.setPersistenceManager(getPersistenceManager());
 		populateTimeLine.setPullToRefresh(swipeContainer);
 		populateTimeLine.startPopulatingTimeLine();
 	}
+	
+	private PersistenceManager getPersistenceManager() {	
+		try {
+			AppSpecificJDXSetup.initialize(); // must be done before calling getInstance()
+			jdxSetup = AppSpecificJDXSetup.getInstance(this);
+			return new JDXPersistenceManagerImpl(jdxSetup);
+		} catch (Exception ex) {
+			Toast.makeText(getBaseContext(), "Exception: " + ex.getMessage(),
+					Toast.LENGTH_SHORT).show();
+			return null;
+		}
+	}
+	
+    /**
+     * Do the necessary cleanup.
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        cleanup();
+    }
+    
+    private void cleanup() {
+        AppSpecificJDXSetup.cleanup(); // Do this when the application is exiting.
+        jdxSetup = null;
+    }
 	
 	/**
 	 * Sets up click listeners to delete or edit a TODO item in a list.

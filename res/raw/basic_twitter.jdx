@@ -1,0 +1,18 @@
+JDX_DATABASE JDX:jdbc:sqldroid://data//data/com.codepath.apps.basictwitter/databases/basic_twitter.db;USER=sa;PASSWORD=sa;JDX_DBTYPE=SQLITE;
+JDBC_DRIVER org.sqldroid.SQLDroidDriver
+;
+REM ************************************************************************
+
+CLASS com.codepath.apps.basictwitter.models.Tweet TABLE TWEET
+   PRIMARY_KEY tweetId
+   SQLMAP FOR mediaURL NULLABLE
+   RELATIONSHIP user REFERENCES com.codepath.apps.basictwitter.models.User WITH userId
+;
+
+CLASS com.codepath.apps.basictwitter.models.User TABLE USER
+  PRIMARY_KEY userId
+;
+
+CLASS com.codepath.apps.basictwitter.models.MiniTweet TABLE TWEET
+   PRIMARY_KEY tweetId
+;

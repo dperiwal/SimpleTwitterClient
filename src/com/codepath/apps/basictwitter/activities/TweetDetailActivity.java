@@ -111,7 +111,7 @@ public class TweetDetailActivity extends Activity {
 		tvTweetBody.setText(tweet.getBody());
 
 		String mediaUrl = tweet.getMediaURL();
-		Log.i("INFO", "mediaURL is " + mediaUrl);
+		// Log.i("INFO", "mediaURL is " + mediaUrl);
 		if (mediaUrl != null) {
 			ivMedia.setVisibility(View.VISIBLE);
 			imageLoader.displayImage(mediaUrl, ivMedia);

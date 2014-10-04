@@ -2,25 +2,40 @@ package com.codepath.apps.basictwitter.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.softwaretree.jx.JXUtilities;
+import android.util.Log;
 
-public class Tweet implements Serializable {  
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Column.ForeignKeyAction;
+import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Select;
+import com.codepath.apps.basictwitter.TwitterApplication;
+
+@Table(name = "Tweets")
+public class CopyOfTweet extends Model implements Serializable {  
 	private static final long serialVersionUID = -7358883615455615013L;
+	@Column(name = "tweet_id")
 	private long tweetId; 
+	@Column(name = "body")
 	private String body;
+	@Column(name = "created_at")
 	private String createdAt;
+	@Column(name = "retweet_count")
 	private int retweetCount;
+	@Column(name = "favorite_count")
 	private int favoriteCount;
+	@Column(name = "media_url")
 	private String mediaURL;
-	private long userId;
-	private User user;
+	@Column(name = "user", onUpdate = ForeignKeyAction.CASCADE, onDelete = ForeignKeyAction.CASCADE)
+	private CopyOfUser user;
 	
-	public Tweet() {
+	public CopyOfTweet() {
 		super();
 	}
 
@@ -28,68 +43,32 @@ public class Tweet implements Serializable {
 		return tweetId;
 	}
 
-	public void setTweetId(long tweetId) {
-		this.tweetId = tweetId;
-	}
-
 	public String getBody() {
 		return body;
-	}
-
-	public void setBody(String body) {
-		this.body = body;
 	}
 
 	public String getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(String createdAt) {
-		this.createdAt = createdAt;
-	}
-
 	public int getRetweetCount() {
 		return retweetCount;
-	}
-
-	public void setRetweetCount(int retweetCount) {
-		this.retweetCount = retweetCount;
 	}
 
 	public int getFavoriteCount() {
 		return favoriteCount;
 	}
 
-	public void setFavoriteCount(int favoriteCount) {
-		this.favoriteCount = favoriteCount;
-	}
-
 	public String getMediaURL() {
 		return mediaURL;
 	}
-
-	public void setMediaURL(String mediaURL) {
-		this.mediaURL = mediaURL;
-	}
-
-	public long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
-
-	public User getUser() {
+	
+	public CopyOfUser getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public static Tweet fromJSON(JSONObject jsonObject) {
-		Tweet tweet = new Tweet();
+	public static CopyOfTweet fromJSON(JSONObject jsonObject) {
+		CopyOfTweet tweet = new CopyOfTweet();
 		// Extract values from jsonObject to populate the member variables
 		try {
 			tweet.tweetId = jsonObject.getLong("id");
@@ -112,18 +91,23 @@ public class Tweet implements Serializable {
 				}
 			}
 			
-			tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
-			tweet.userId = tweet.user.getUserId();
-					
+			tweet.user = CopyOfUser.fromJSON(jsonObject.getJSONObject("user"));
+			
 		} catch (JSONException ex) {
 			return null;			
+		}
+		
+		if (TwitterApplication.USE_ACTIVE_ANDROID) {
+			// First save the user and then the tweet
+			tweet.user.save();
+			tweet.save();
 		}
 		
 		return tweet;
 	}
 	
-	public static ArrayList<Tweet> fromJSONArray(JSONArray array) {
-		ArrayList<Tweet> tweets = new ArrayList<Tweet>();
+	public static ArrayList<CopyOfTweet> fromJSONArray(JSONArray array) {
+		ArrayList<CopyOfTweet> tweets = new ArrayList<CopyOfTweet>();
 		for (int i = 0; i < array.length(); i++) {
 			JSONObject tweetJson = null;
 			try {
@@ -132,13 +116,12 @@ public class Tweet implements Serializable {
 				e.printStackTrace();
 				continue;
 			}
-			Tweet tweet = Tweet.fromJSON(tweetJson);
+			CopyOfTweet tweet = CopyOfTweet.fromJSON(tweetJson);
 			if (tweet != null) {
 				tweets.add(tweet);
 			}
 		}
 		// Log.i("INFO", "Number of new tweets=" + array.length());
-		// JXUtilities.printQueryResults(tweets);
 		return tweets;
 	}
 	
@@ -146,5 +129,16 @@ public class Tweet implements Serializable {
 	public String toString() {
 		return (body + " - " + user.getScreenName());
 	}
+	
+	public static List<CopyOfTweet> getAll(String predicate) {
+        // This is how you execute a query
+        return new Select()
+          .all()
+          .from(CopyOfTweet.class)
+          .where(predicate)
+          .limit(20)
+          .orderBy("tweet_id DESC")
+          .execute();
+    }
 
 }

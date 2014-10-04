@@ -5,20 +5,11 @@ import java.io.Serializable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
-
-@Table(name = "User")
-public class User extends Model implements Serializable {
+public class User implements Serializable {
 	private static final long serialVersionUID = 782520282314155005L;
-	@Column(name = "name")
 	private String name;
-	@Column(name = "user_id", unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
-	private long uid;
-	@Column(name = "screen_name")
+	private long userId;
 	private String screenName;
-	@Column(name = "profile_image_url")
 	private String profileImageUrl;
 
 	public User() {
@@ -28,27 +19,42 @@ public class User extends Model implements Serializable {
 	public String getName() {
 		return name;
 	}
-	
-	public long getUid() {
-		return uid;
+
+	public void setName(String name) {
+		this.name = name;
 	}
-	
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+
 	public String getScreenName() {
 		return screenName;
+	}
+
+	public void setScreenName(String screenName) {
+		this.screenName = screenName;
 	}
 
 	public String getProfileImageUrl() {
 		return profileImageUrl;
 	}
 
+	public void setProfileImageUrl(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
+
 	public static User fromJSON(JSONObject jsonObject) {
 		User user = new User();
 		try {
 			user.name = jsonObject.getString("name");
-			user.uid = jsonObject.getLong("id");
+			user.userId = jsonObject.getLong("id");
 			user.screenName = jsonObject.getString("screen_name");
-			user.profileImageUrl = jsonObject.getString("profile_image_url");
-			
+			user.profileImageUrl = jsonObject.getString("profile_image_url");		
 		} catch (JSONException ex) {
 			return null;
 		}

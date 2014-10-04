@@ -11,10 +11,12 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.codepath.apps.basictwitter.TwitterApplication;
 import com.codepath.apps.basictwitter.models.Tweet;
+import com.codepath.apps.basictwitter.persistence.PersistenceManager;
 import com.codepath.apps.basictwitter.rest.TwitterClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -40,23 +42,31 @@ public class PopulateTimeLine {
 	private ArrayList<Tweet> tweets;
 	private ArrayAdapter<Tweet> aTweets;
 	private ListView lvTweets;
+	private ProgressBar pb;
 	private long idHigherThan;
 	private long idLowerThan; 
 	private boolean freshStart;
 	private Activity containingActivity;
 	private SwipeRefreshLayout swipeContainer;
+
+	private PersistenceManager persistenceManager;
 	
 	public PopulateTimeLine(Activity containingActivity, ArrayList<Tweet> tweets,
-			ArrayAdapter<Tweet> aTweets, ListView lvTweets) {
+			ArrayAdapter<Tweet> aTweets, ListView lvTweets, ProgressBar pb) {
 		super();
 		this.containingActivity = containingActivity;
 		this.tweets = tweets;
 		this.aTweets = aTweets;
 		this.lvTweets = lvTweets;
+		this.pb = pb;
 		this.client = TwitterApplication.getRestClient();
 		idHigherThan = 1;
 		idLowerThan = Long.MAX_VALUE; // Will be reset after the first fetch
 		this.freshStart = true;
+	}
+	
+	public void setPersistenceManager(PersistenceManager persistenceManager) {
+		this.persistenceManager = persistenceManager;		
 	}
 	
 	public void reset() {
@@ -75,21 +85,22 @@ public class PopulateTimeLine {
 	public void fetchMore(final FetchDirection direction) {
      /*    	Log.d("Debug", "In fetchMore, higherThan(" + idHigherThan + 
 				"), lowerThan(" + idLowerThan + ")");*/
-		containingActivity.setProgressBarIndeterminateVisibility(true);
+		// containingActivity.setProgressBarIndeterminateVisibility(true);
+		
+		pb.setVisibility(ProgressBar.VISIBLE);
     	if (!Utils.isNetworkAvailable(containingActivity)) {
 			Log.i("INFO", Utils.NETWORK_UNAVAILABLE_MSG);
 			Toast.makeText(containingActivity, Utils.NETWORK_UNAVAILABLE_MSG, Toast.LENGTH_SHORT).show();
 			if (direction == FetchDirection.FORWARD) {
 			    swipeContainer.setRefreshing(false); 
 			}			
-			if (TwitterApplication.USE_ACTIVE_ANDROID) {
-				// Get tweets from the local database
-				List<Tweet> newTweets = getTweetsFromLocalDB(direction,
-						idHigherThan, idLowerThan);		
-				updateAdapter(direction, newTweets);
-			}
-			containingActivity.setProgressBarIndeterminateVisibility(false);
-			
+
+			// Get tweets from the local database
+			List<Tweet> newTweets = getTweetsFromLocalDB(direction,idHigherThan, idLowerThan);
+			updateAdapter(direction, newTweets);
+
+			pb.setVisibility(ProgressBar.INVISIBLE);
+			//containingActivity.setProgressBarIndeterminateVisibility(false);			
 			return;
 		}
     	
@@ -98,7 +109,8 @@ public class PopulateTimeLine {
 			@Override
 			public void onSuccess(JSONArray json) {
 				// Log.d("Debug", "In populateTimeline:onSuccess, new tweets=" + json.length());
-				containingActivity.setProgressBarIndeterminateVisibility(false);
+				// containingActivity.setProgressBarIndeterminateVisibility(false);
+				pb.setVisibility(ProgressBar.INVISIBLE);
 				if (direction == FetchDirection.FORWARD) {
 				    swipeContainer.setRefreshing(false); 
 				}
@@ -107,13 +119,15 @@ public class PopulateTimeLine {
 				}
 				// Log.d("Debug",json.toString());
 				ArrayList<Tweet> newTweets = Tweet.fromJSONArray(json);
-
+				saveTweetsInLocalDB(newTweets);
+				
 				updateAdapter(direction, newTweets);		
 			}
 			
 			@Override
 			public void onFailure(Throwable e, String error) {
-				containingActivity.setProgressBarIndeterminateVisibility(false);
+				// containingActivity.setProgressBarIndeterminateVisibility(false);
+				pb.setVisibility(ProgressBar.INVISIBLE);
 				Log.d("Debug", "in populateTimeline:onFailure");
 				Log.d("Debug", error);			
 			}
@@ -185,15 +199,43 @@ public class PopulateTimeLine {
 		// Log.d("Debug", "New idLowerThan=" + idLowerThan);
 	}
 	
+	private void saveTweetsInLocalDB(ArrayList<Tweet> newTweets) {
+		if (persistenceManager == null) {
+			return;
+		}
+		// Toast.makeText(containingActivity, "Entering saveTweetsInLocalDB", Toast.LENGTH_SHORT).show();
+		try {
+			persistenceManager.saveTweets(newTweets);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// Toast.makeText(containingActivity, "Exiting saveTweetsInLocalDB", Toast.LENGTH_SHORT).show();
+	}
+	
 	private List<Tweet> getTweetsFromLocalDB(FetchDirection direction, long idHigherThan, long idLowerThan) {
+		List<Tweet> tweets = new ArrayList<Tweet>();
+		if (persistenceManager == null) {
+			return tweets;
+		}
+		
 		String predicate;
 		if (direction == FetchDirection.FORWARD) {
-			predicate = "tweet_id > " + Long.valueOf(idHigherThan).toString();
+			predicate = "tweetId > " + Long.valueOf(idHigherThan).toString();
 		} else {
-			predicate = "tweet_id < " + Long.valueOf(idLowerThan).toString();
+			predicate = "tweetId < " + Long.valueOf(idLowerThan).toString();
 		}	
+		predicate = predicate + " ORDER BY tweetId DESC";
 		// System.out.println("Getting tweets from the local database, predicate=" + predicate);
 		// Log.i("INFO", "Getting tweets from the local database, predicate=" + predicate);
-		return Tweet.getAll(predicate);	
+		try {
+			tweets = persistenceManager.queryTweets(predicate, TWEET_COUNT, true);
+			// Log.i("INFO", "Tweet count from the local database=" + tweets.size());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		return tweets;
 	}
+
 }
