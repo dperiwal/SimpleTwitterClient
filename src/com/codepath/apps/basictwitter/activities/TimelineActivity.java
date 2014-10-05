@@ -1,37 +1,30 @@
 package com.codepath.apps.basictwitter.activities;
 
-import java.util.ArrayList;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.codepath.apps.basictwitter.R;
 import com.codepath.apps.basictwitter.TwitterApplication;
-import com.codepath.apps.basictwitter.adapters.TweetArrayAdapter;
-import com.codepath.apps.basictwitter.models.Tweet;
+import com.codepath.apps.basictwitter.fragments.HomeTimeLineFragment;
+import com.codepath.apps.basictwitter.fragments.MentionsTimeLineFragment;
+import com.codepath.apps.basictwitter.listeners.FragmentTabListener;
 import com.codepath.apps.basictwitter.persistence.AppSpecificJDXSetup;
 import com.codepath.apps.basictwitter.persistence.JDXPersistenceManagerImpl;
 import com.codepath.apps.basictwitter.persistence.PersistenceManager;
 import com.codepath.apps.basictwitter.utils.PopulateTimeLine;
-import com.codepath.apps.basictwitter.utils.PopulateTimeLine.FetchDirection;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.softwaretree.jdxandroid.JDXSetup;
 
@@ -48,13 +41,10 @@ import com.softwaretree.jdxandroid.JDXSetup;
  * @author Damodar Periwal
  *
  */
-public class TimelineActivity extends Activity {
+public class TimelineActivity extends FragmentActivity implements TimelineActivityCallbacks {
 	static final int REQUEST_CODE = 50;
 	
-	private ProgressBar pb;
-	private ArrayList<Tweet> tweets;
-	private ArrayAdapter<Tweet> aTweets;
-	private ListView lvTweets;
+	private PersistenceManager persistenceManager = null;
 	private PopulateTimeLine populateTimeLine;
 	private String userHandle;
 	
@@ -62,41 +52,55 @@ public class TimelineActivity extends Activity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		// MUST request the feature before setting content view
-        // requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); 
-        
-		setContentView(R.layout.activity_timeline);
-		
-		setupUserProfile();
-		
-		pb = (ProgressBar) findViewById(R.id.pbLoading);
-		lvTweets = (ListView) findViewById(R.id.lvTweets);
-		tweets = new ArrayList<Tweet>();
-		aTweets = new TweetArrayAdapter(this, tweets);
-		lvTweets.setAdapter(aTweets);
-		Toast.makeText(this, "Inside TimelineActivity:OnCreate" , Toast.LENGTH_LONG).show();
-		
-		setupListViewListener();
-		
-		SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
-		
-		populateTimeLine = new PopulateTimeLine(this, tweets, aTweets, lvTweets, pb);
-		populateTimeLine.setPersistenceManager(getPersistenceManager());
-		populateTimeLine.setPullToRefresh(swipeContainer);
-		populateTimeLine.startPopulatingTimeLine();
+		super.onCreate(savedInstanceState);	    
+		setContentView(R.layout.activity_timeline);	
+		setupPersistenceManager();	
+		setupUserProfile();	
+		setupTabs();
 	}
 	
-	private PersistenceManager getPersistenceManager() {	
+	private void setupTabs() {
+		ActionBar actionBar = getActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		actionBar.setDisplayShowTitleEnabled(true);
+
+		Tab tab1 = actionBar
+				.newTab()
+				.setText("Home")
+				.setIcon(R.drawable.ic_tab_home)
+				.setTag("HomeTimelineFragment")
+				.setTabListener(
+						new FragmentTabListener<HomeTimeLineFragment>(
+								R.id.flContainer, this, "Home",
+								HomeTimeLineFragment.class));
+		actionBar.addTab(tab1);
+		actionBar.selectTab(tab1);
+
+		Tab tab2 = actionBar
+				.newTab()
+				.setText("Mentions")
+				.setIcon(R.drawable.ic_tab_mention)
+				.setTag("MentionsTimelineFragment")
+				.setTabListener(
+						new FragmentTabListener<MentionsTimeLineFragment>(
+								R.id.flContainer, this, "Mentions",
+								MentionsTimeLineFragment.class));
+		actionBar.addTab(tab2);
+	}
+
+	public PersistenceManager getPersistenceManager() {
+		return persistenceManager;
+	}
+	
+	private void setupPersistenceManager() {	
 		try {
 			AppSpecificJDXSetup.initialize(); // must be done before calling getInstance()
 			jdxSetup = AppSpecificJDXSetup.getInstance(this);
-			return new JDXPersistenceManagerImpl(jdxSetup);
+			persistenceManager = new JDXPersistenceManagerImpl(jdxSetup);
 		} catch (Exception ex) {
 			Toast.makeText(getBaseContext(), "Exception: " + ex.getMessage(),
 					Toast.LENGTH_SHORT).show();
-			return null;
+			persistenceManager = null;
 		}
 	}
 	
@@ -113,33 +117,6 @@ public class TimelineActivity extends Activity {
         AppSpecificJDXSetup.cleanup(); // Do this when the application is exiting.
         jdxSetup = null;
     }
-	
-	/**
-	 * Sets up click listeners to delete or edit a TODO item in a list.
-	 */
-	private void setupListViewListener() {		
-		// Set up a click listener to view the details of a tweet in a separate activity. 
-		lvTweets.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				launchTweetDetailActivity(position);			
-			}
-			
-			private void launchTweetDetailActivity(int position) {
-				if (position < 0) { // possible?
-					return;
-				}
-				// Set up an intent for EditItemActivity with the parameter values
-				// of the position and the value of the item at the selected position
-				Tweet tweet = aTweets.getItem(position);
-				Intent i = new Intent(TimelineActivity.this, TweetDetailActivity.class);
-				i.putExtra("tweet", tweet);
-				startActivity(i);			
-			}		
-		});
-	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -166,20 +143,7 @@ public class TimelineActivity extends Activity {
 			return true;
 		}
 		
-		if (id == R.id.action_refresh) {
-			populateTimeLine.reset();
-			populateTimeLine.fetchMore(FetchDirection.FORWARD);
-			return true;
-		}
 		return super.onOptionsItemSelected(item);
-	}
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-			// Fetch the recently posted tweet along with other new ones
-			populateTimeLine.fetchMore(FetchDirection.FORWARD);
-		}
 	}
 	
 	private void setupUserProfile() {

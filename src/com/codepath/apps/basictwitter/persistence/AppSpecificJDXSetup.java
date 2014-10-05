@@ -33,6 +33,6 @@ public class AppSpecificJDXSetup extends BaseAppSpecificJDXSetup {
         setORMFileResourceId(R.raw.basic_twitter);
         setJdxForAndroidLicenseKey("_PJ01.0cCsupNaU0ulc85zsudN3R9hzR331zbR1Ts9wT99N5JDXi7LYI3154");
         // setForceCreateSchema(true);
-        setDebugLevel(3); // To see all the SQL statements in the log
+        // setDebugLevel(3); // To see all the SQL statements in the log
     }  
 }

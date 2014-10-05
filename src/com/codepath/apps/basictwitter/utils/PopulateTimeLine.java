@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -18,6 +19,7 @@ import com.codepath.apps.basictwitter.TwitterApplication;
 import com.codepath.apps.basictwitter.models.Tweet;
 import com.codepath.apps.basictwitter.persistence.PersistenceManager;
 import com.codepath.apps.basictwitter.rest.TwitterClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 /**
@@ -32,16 +34,15 @@ import com.loopj.android.http.JsonHttpResponseHandler;
  * @author Damodar Periwal
  *
  */
-public class PopulateTimeLine {	
+public abstract class PopulateTimeLine {	
 	public enum FetchDirection {
 		FORWARD, BACKWARD		
 	}	
 	public int TWEET_COUNT = 25; // For every fetch
 	
-	private TwitterClient client;
+	protected TwitterClient client;
 	private ArrayList<Tweet> tweets;
 	private ArrayAdapter<Tweet> aTweets;
-	private ListView lvTweets;
 	private ProgressBar pb;
 	private long idHigherThan;
 	private long idLowerThan; 
@@ -51,14 +52,16 @@ public class PopulateTimeLine {
 
 	private PersistenceManager persistenceManager;
 	
+	// A concrete class should implement this call
+	protected abstract void makeRESTcall(FetchDirection direction, int count, 
+			long idHigherThan, long idLowerThan, AsyncHttpResponseHandler handler); 
+	
 	public PopulateTimeLine(Activity containingActivity, ArrayList<Tweet> tweets,
-			ArrayAdapter<Tweet> aTweets, ListView lvTweets, ProgressBar pb) {
+			ArrayAdapter<Tweet> aTweets) {
 		super();
 		this.containingActivity = containingActivity;
 		this.tweets = tweets;
 		this.aTweets = aTweets;
-		this.lvTweets = lvTweets;
-		this.pb = pb;
 		this.client = TwitterApplication.getRestClient();
 		idHigherThan = 1;
 		idLowerThan = Long.MAX_VALUE; // Will be reset after the first fetch
@@ -85,34 +88,32 @@ public class PopulateTimeLine {
 	public void fetchMore(final FetchDirection direction) {
      /*    	Log.d("Debug", "In fetchMore, higherThan(" + idHigherThan + 
 				"), lowerThan(" + idLowerThan + ")");*/
-		// containingActivity.setProgressBarIndeterminateVisibility(true);
 		
-		pb.setVisibility(ProgressBar.VISIBLE);
+		showProgressBar();
     	if (!Utils.isNetworkAvailable(containingActivity)) {
 			Log.i("INFO", Utils.NETWORK_UNAVAILABLE_MSG);
 			Toast.makeText(containingActivity, Utils.NETWORK_UNAVAILABLE_MSG, Toast.LENGTH_SHORT).show();
 			if (direction == FetchDirection.FORWARD) {
-			    swipeContainer.setRefreshing(false); 
+			    setRefreshing(false); 
 			}			
 
 			// Get tweets from the local database
 			List<Tweet> newTweets = getTweetsFromLocalDB(direction,idHigherThan, idLowerThan);
 			updateAdapter(direction, newTweets);
 
-			pb.setVisibility(ProgressBar.INVISIBLE);
+			hideProgressBar();
 			//containingActivity.setProgressBarIndeterminateVisibility(false);			
 			return;
 		}
     	
-		client.getHomeTimeline(direction, TWEET_COUNT, idHigherThan, idLowerThan, 
-				new JsonHttpResponseHandler() {
+    	makeRESTcall(direction, TWEET_COUNT, idHigherThan, idLowerThan, new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(JSONArray json) {
 				// Log.d("Debug", "In populateTimeline:onSuccess, new tweets=" + json.length());
 				// containingActivity.setProgressBarIndeterminateVisibility(false);
-				pb.setVisibility(ProgressBar.INVISIBLE);
+				hideProgressBar();
 				if (direction == FetchDirection.FORWARD) {
-				    swipeContainer.setRefreshing(false); 
+				    setRefreshing(false); 
 				}
 				if (json.length() == 0) {
 					return; // Nothing to do
@@ -127,7 +128,10 @@ public class PopulateTimeLine {
 			@Override
 			public void onFailure(Throwable e, String error) {
 				// containingActivity.setProgressBarIndeterminateVisibility(false);
-				pb.setVisibility(ProgressBar.INVISIBLE);
+				hideProgressBar();
+				if (direction == FetchDirection.FORWARD) {
+				    setRefreshing(false); 
+				}
 				Log.d("Debug", "in populateTimeline:onFailure");
 				Log.d("Debug", error);			
 			}
@@ -140,11 +144,19 @@ public class PopulateTimeLine {
 			@Override
 			public void onRefresh() {
 				// Your code to refresh the list here.
-				// Make sure you call swipeContainer.setRefreshing(false)
+				// Make sure you call setRefreshing(false)
 				// once the network request has completed successfully.
 				fetchMore(FetchDirection.FORWARD);
 			}
 		});
+	}
+	
+	// There might be a race condition between the initialization of 
+	// the swipeContainer variable and its setting. 
+	private void setRefreshing(boolean refreshing) {
+		if (swipeContainer != null) { // defensive programming
+			swipeContainer.setRefreshing(refreshing);
+		}
 	}
 	
 	private void updateAdapter(FetchDirection direction, List<Tweet> newTweets) {	
@@ -163,9 +175,7 @@ public class PopulateTimeLine {
 		}	
 	}
 		
-	public void startPopulatingTimeLine() {
-		// Log.d("Debug", "In startPopulatingTimeLine");
-		reset();	
+	public void setEndlessScrollListener(ListView lvTweets) {
 		// Attach a ScrollListner to query for tweets.	
 		lvTweets.setOnScrollListener(new EndlessScrollListener() {
 			@Override
@@ -176,7 +186,6 @@ public class PopulateTimeLine {
 				fetchMore(FetchDirection.BACKWARD); // Get older tweets
 			}
 		});
-		fetchMore(FetchDirection.FORWARD);; // First time
 	}
 	
 	private void updateIdHigherThan(List<Tweet> newTweets) {
@@ -236,6 +245,33 @@ public class PopulateTimeLine {
 			e.printStackTrace();
 		}	
 		return tweets;
+	}
+
+	public void startPopulatingTimeLine() {
+		reset();
+		fetchMore(FetchDirection.FORWARD);; // First time	
+	}
+
+	public void setProgressBar(ProgressBar pb) {
+		hideProgressBar();  // Hide previous progress bar, if any
+		this.pb = pb;
+		hideProgressBar(); 
+	}
+	
+	// There might be a race condition between the initialization of 
+	// the pb variable and its setting. 
+	private void showProgressBar() {
+		if (pb != null) { // defensive programming
+			pb.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	// There might be a race condition between the initialization of 
+    // the pb variable and its setting.
+	private void hideProgressBar() {
+		if (pb != null) { // defensive programming
+			pb.setVisibility(View.GONE);
+		}
 	}
 
 }

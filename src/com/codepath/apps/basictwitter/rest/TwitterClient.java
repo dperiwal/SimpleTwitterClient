@@ -71,6 +71,26 @@ public class TwitterClient extends OAuthBaseClient {
 		params.put("count",  Integer.valueOf(count).toString());
 		client.get(apiUrl, params, handler);	
 	}
+	
+	/**
+	 * Fetches more tweets which mentions the user. One of idHigherThan and idLowerThan has to be positive. 
+	 * 
+	 * @param idHigherThan Provides since_id value (tweets with higher ids should be fetched)
+	 * @param idLowerThan Provides max_id value (tweets with lower ids should be fetched)
+	 * @param handler Callback
+	 */
+	public void getMentionsTimeline(FetchDirection direction, int count, long idHigherThan, long idLowerThan, 
+			AsyncHttpResponseHandler handler) {
+		String apiUrl = getApiUrl("statuses/mentions_timeline.json");
+		RequestParams params = new RequestParams();
+		if (direction == FetchDirection.FORWARD) {
+			params.put("since_id", Long.valueOf(idHigherThan).toString());
+		} else {
+			params.put("max_id", Long.valueOf(idLowerThan - 1).toString());
+		}
+		params.put("count",  Integer.valueOf(count).toString());
+		client.get(apiUrl, params, handler);	
+	}
 		
    public void postTweet(String tweet, long inReplyToStatusId, AsyncHttpResponseHandler handler) {
 		String apiUrl = getApiUrl("statuses/update.json");
