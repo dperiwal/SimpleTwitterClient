@@ -63,6 +63,7 @@ public class TweetArrayAdapter extends ArrayAdapter<Tweet> {
 		viewHolder.ivProfileImage.setOnClickListener(new OnClickListener() {
 			
 			// Start the activity to show the clicked users profile.
+			// TODO: Avoid recursive behavior: Don't go to ProfileActivity from within ProfileActivity.
 			@Override
 			public void onClick(View v) {
 				User user = (User) v.getTag();
