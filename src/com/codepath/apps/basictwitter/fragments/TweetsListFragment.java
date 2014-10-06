@@ -7,20 +7,21 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.codepath.apps.basictwitter.R;
-import com.codepath.apps.basictwitter.activities.TimelineActivityCallbacks;
 import com.codepath.apps.basictwitter.activities.TweetDetailActivity;
 import com.codepath.apps.basictwitter.adapters.TweetArrayAdapter;
 import com.codepath.apps.basictwitter.models.Tweet;
+import com.codepath.apps.basictwitter.models.User;
 import com.codepath.apps.basictwitter.utils.PopulateTimeLine;
 
 public abstract class TweetsListFragment extends Fragment {	
@@ -28,7 +29,7 @@ public abstract class TweetsListFragment extends Fragment {
 	protected ArrayList<Tweet> tweets;
 	protected ArrayAdapter<Tweet> aTweets;
 	protected ListView lvTweets;
-	private TimelineActivityCallbacks timelineActivityCallbacks;
+	protected User user;
 	private PopulateTimeLine populateTimeLine;
 	
 	protected abstract PopulateTimeLine getTimelinePopulator();
@@ -38,9 +39,8 @@ public abstract class TweetsListFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		tweets = new ArrayList<Tweet>();
 		aTweets = new TweetArrayAdapter(getActivity(), tweets);
-		timelineActivityCallbacks = (TimelineActivityCallbacks) getActivity();
+		user = (User) getArguments().getSerializable(User.USER_KEY);
 		populateTimeLine = getTimelinePopulator();	
-		populateTimeLine.setPersistenceManager(timelineActivityCallbacks.getPersistenceManager());
 		populateTimeLine.startPopulatingTimeLine();
 	}
 	
@@ -69,17 +69,31 @@ public abstract class TweetsListFragment extends Fragment {
 		return v;
 	}
 	
+	protected User getUser() {
+		return user;
+	}
+	
+	public void addATweet(Tweet newTweet) {
+		// Put the new tweet in a list as that is the required type of argument
+		// for the following methods.
+		ArrayList<Tweet> newTweets = new ArrayList<Tweet>();
+		newTweets.add(newTweet);
+		populateTimeLine.saveTweetsInLocalDB(newTweets);
+		populateTimeLine.updateAdapter(PopulateTimeLine.FetchDirection.FORWARD, newTweets);	
+	}
+	
 	/**
-	 * Sets up click listeners to delete or edit a TODO item in a list.
+	 * Sets up click listeners to see details of a Tweet in the list.
 	 */
-	private void setupListViewListener() {		
-		// Set up a click listener to view the details of a tweet in a separate activity. 
-		lvTweets.setOnItemClickListener(new OnItemClickListener() {
-
+	private void setupListViewListener() {	
+		
+		// Set up a long click listener to view the details of a tweet in a separate activity. 
+		lvTweets.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				launchTweetDetailActivity(position);			
+				launchTweetDetailActivity(position);
+				return true;			
 			}
 			
 			private void launchTweetDetailActivity(int position) {
@@ -90,7 +104,7 @@ public abstract class TweetsListFragment extends Fragment {
 				// of the position and the value of the item at the selected position
 				Tweet tweet = aTweets.getItem(position);
 				Intent i = new Intent(getActivity(), TweetDetailActivity.class);
-				i.putExtra("tweet", tweet);
+				i.putExtra(Tweet.TWEET_KEY, tweet);
 				startActivity(i);			
 			}		
 		});

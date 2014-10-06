@@ -9,9 +9,9 @@ import com.codepath.apps.basictwitter.models.Tweet;
 import com.codepath.apps.basictwitter.models.User;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
-public class PopulateMentionsTimeLine extends PopulateTimeLine {
-
-	public PopulateMentionsTimeLine(User user, Activity containingActivity,
+public class PopulateUserTimeLine extends PopulateTimeLine {
+	
+	public PopulateUserTimeLine(User user, Activity containingActivity,
 			ArrayList<Tweet> tweets, ArrayAdapter<Tweet> aTweets) {
 		super(user, containingActivity, tweets, aTweets);
 	}
@@ -19,19 +19,12 @@ public class PopulateMentionsTimeLine extends PopulateTimeLine {
 	@Override
 	protected void makeRESTcall(User user, FetchDirection direction, int count, 
 			long idHigherThan, long idLowerThan, AsyncHttpResponseHandler handler) {
-		client.getMentionsTimeline(direction, TWEET_COUNT, idHigherThan, idLowerThan, handler);
-	}
-	
-	@Override
-	protected void decorateNewTweets(ArrayList<Tweet> newTweets) {
-		for (Tweet tweet : newTweets) {
-			tweet.setMentionsMe(true);
-		}
+		client.getUserTimeline(direction, TWEET_COUNT, idHigherThan, idLowerThan, user.getUserId(), handler);
 	}
 	
 	@Override
 	protected String getPredicateAddedum() {
-		return (" AND mentionsMe = 't'");
-	} 
+		return (" AND userId=" + user.getUserId());
+	}
 
 }

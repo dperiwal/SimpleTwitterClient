@@ -2,15 +2,19 @@ package com.codepath.apps.basictwitter.adapters;
 import java.util.List;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.codepath.apps.basictwitter.R;
+import com.codepath.apps.basictwitter.activities.ProfileActivity;
 import com.codepath.apps.basictwitter.models.Tweet;
+import com.codepath.apps.basictwitter.models.User;
 import com.codepath.apps.basictwitter.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -54,6 +58,21 @@ public class TweetArrayAdapter extends ArrayAdapter<Tweet> {
 			viewHolder.tvCreationTime.setText("");
 			viewHolder.tvBody.setText("");
 		}
+		
+		viewHolder.ivProfileImage.setTag(tweet.getUser());
+		viewHolder.ivProfileImage.setOnClickListener(new OnClickListener() {
+			
+			// Start the activity to show the clicked users profile.
+			@Override
+			public void onClick(View v) {
+				User user = (User) v.getTag();
+				// Create an intent for profile activity
+				Intent i = new Intent(getContext(), ProfileActivity.class);
+				// Pass the user data
+				i.putExtra(User.USER_KEY, user);
+				getContext().startActivity(i);				
+			}
+		});
 		
 		if (Utils.isNetworkAvailable(getContext())) {
 		    ImageLoader imageLoader = ImageLoader.getInstance();

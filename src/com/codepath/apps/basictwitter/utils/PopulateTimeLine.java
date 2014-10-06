@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.codepath.apps.basictwitter.TwitterApplication;
 import com.codepath.apps.basictwitter.models.Tweet;
+import com.codepath.apps.basictwitter.models.User;
 import com.codepath.apps.basictwitter.persistence.PersistenceManager;
 import com.codepath.apps.basictwitter.rest.TwitterClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -41,35 +42,35 @@ public abstract class PopulateTimeLine {
 	public int TWEET_COUNT = 25; // For every fetch
 	
 	protected TwitterClient client;
+	protected User user;
 	private ArrayList<Tweet> tweets;
 	private ArrayAdapter<Tweet> aTweets;
 	private ProgressBar pb;
 	private long idHigherThan;
 	private long idLowerThan; 
 	private boolean freshStart;
+
 	private Activity containingActivity;
 	private SwipeRefreshLayout swipeContainer;
 
 	private PersistenceManager persistenceManager;
 	
 	// A concrete class should implement this call
-	protected abstract void makeRESTcall(FetchDirection direction, int count, 
+	protected abstract void makeRESTcall(User user, FetchDirection direction, int count, 
 			long idHigherThan, long idLowerThan, AsyncHttpResponseHandler handler); 
 	
-	public PopulateTimeLine(Activity containingActivity, ArrayList<Tweet> tweets,
+	public PopulateTimeLine(User user, Activity containingActivity, ArrayList<Tweet> tweets,
 			ArrayAdapter<Tweet> aTweets) {
 		super();
+		this.user = user;
 		this.containingActivity = containingActivity;
 		this.tweets = tweets;
 		this.aTweets = aTweets;
 		this.client = TwitterApplication.getRestClient();
+		this.persistenceManager = TwitterApplication.getPersistenceManager();
 		idHigherThan = 1;
 		idLowerThan = Long.MAX_VALUE; // Will be reset after the first fetch
 		this.freshStart = true;
-	}
-	
-	public void setPersistenceManager(PersistenceManager persistenceManager) {
-		this.persistenceManager = persistenceManager;		
 	}
 	
 	public void reset() {
@@ -106,7 +107,7 @@ public abstract class PopulateTimeLine {
 			return;
 		}
     	
-    	makeRESTcall(direction, TWEET_COUNT, idHigherThan, idLowerThan, new JsonHttpResponseHandler() {
+    	makeRESTcall(user, direction, TWEET_COUNT, idHigherThan, idLowerThan, new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(JSONArray json) {
 				// Log.d("Debug", "In populateTimeline:onSuccess, new tweets=" + json.length());
@@ -159,7 +160,7 @@ public abstract class PopulateTimeLine {
 		}
 	}
 	
-	private void updateAdapter(FetchDirection direction, List<Tweet> newTweets) {	
+	public void updateAdapter(FetchDirection direction, List<Tweet> newTweets) {	
 		if (direction == FetchDirection.FORWARD) { // we have got newer tweets
 			updateIdHigherThan(newTweets);			
 		    tweets.addAll(0, newTweets); // prepend the new tweets
@@ -208,10 +209,11 @@ public abstract class PopulateTimeLine {
 		// Log.d("Debug", "New idLowerThan=" + idLowerThan);
 	}
 	
-	private void saveTweetsInLocalDB(ArrayList<Tweet> newTweets) {
+	public void saveTweetsInLocalDB(ArrayList<Tweet> newTweets) {
 		if (persistenceManager == null) {
 			return;
 		}
+		decorateNewTweets(newTweets);
 		// Toast.makeText(containingActivity, "Entering saveTweetsInLocalDB", Toast.LENGTH_SHORT).show();
 		try {
 			persistenceManager.saveTweets(newTweets);
@@ -222,6 +224,11 @@ public abstract class PopulateTimeLine {
 		// Toast.makeText(containingActivity, "Exiting saveTweetsInLocalDB", Toast.LENGTH_SHORT).show();
 	}
 	
+	// Maybe overridden by a subclass.
+	protected void decorateNewTweets(ArrayList<Tweet> newTweets) {
+		return;		
+	}
+
 	private List<Tweet> getTweetsFromLocalDB(FetchDirection direction, long idHigherThan, long idLowerThan) {
 		List<Tweet> tweets = new ArrayList<Tweet>();
 		if (persistenceManager == null) {
@@ -234,6 +241,8 @@ public abstract class PopulateTimeLine {
 		} else {
 			predicate = "tweetId < " + Long.valueOf(idLowerThan).toString();
 		}	
+		predicate = predicate.concat(getPredicateAddedum());
+		
 		predicate = predicate + " ORDER BY tweetId DESC";
 		// System.out.println("Getting tweets from the local database, predicate=" + predicate);
 		// Log.i("INFO", "Getting tweets from the local database, predicate=" + predicate);
@@ -245,6 +254,10 @@ public abstract class PopulateTimeLine {
 			e.printStackTrace();
 		}	
 		return tweets;
+	}
+	
+	protected String getPredicateAddedum() {
+		return "";
 	}
 
 	public void startPopulatingTimeLine() {

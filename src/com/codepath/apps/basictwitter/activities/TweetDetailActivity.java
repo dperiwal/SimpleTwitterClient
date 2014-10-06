@@ -57,7 +57,7 @@ public class TweetDetailActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tweet_detail);
 		setupResources();
-		currTweet = (Tweet) getIntent().getSerializableExtra("tweet");
+		currTweet = (Tweet) getIntent().getSerializableExtra(Tweet.TWEET_KEY);
 		displayTweet(currTweet);
 	}
 

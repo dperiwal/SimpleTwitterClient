@@ -10,7 +10,7 @@ public class MentionsTimeLineFragment extends TweetsListFragment {
 
 	@Override
 	protected PopulateTimeLine getTimelinePopulator() {
-		return new PopulateMentionsTimeLine(getActivity(), tweets, aTweets);
+		return new PopulateMentionsTimeLine(getUser(), getActivity(), tweets, aTweets);
 	}
 
 }

@@ -1,32 +1,24 @@
 package com.codepath.apps.basictwitter.activities;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.codepath.apps.basictwitter.R;
 import com.codepath.apps.basictwitter.TwitterApplication;
 import com.codepath.apps.basictwitter.fragments.HomeTimeLineFragment;
 import com.codepath.apps.basictwitter.fragments.MentionsTimeLineFragment;
 import com.codepath.apps.basictwitter.listeners.FragmentTabListener;
-import com.codepath.apps.basictwitter.persistence.AppSpecificJDXSetup;
-import com.codepath.apps.basictwitter.persistence.JDXPersistenceManagerImpl;
-import com.codepath.apps.basictwitter.persistence.PersistenceManager;
-import com.codepath.apps.basictwitter.utils.PopulateTimeLine;
+import com.codepath.apps.basictwitter.models.Tweet;
+import com.codepath.apps.basictwitter.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.softwaretree.jdxandroid.JDXSetup;
 
 /**
  * This activity shows a list of tweets in my timeline. 
@@ -41,25 +33,22 @@ import com.softwaretree.jdxandroid.JDXSetup;
  * @author Damodar Periwal
  *
  */
-public class TimelineActivity extends FragmentActivity implements TimelineActivityCallbacks {
+public class TimelineActivity extends FragmentActivity {
 	static final int REQUEST_CODE = 50;
-	
-	private PersistenceManager persistenceManager = null;
-	private PopulateTimeLine populateTimeLine;
-	private String userHandle;
-	
-	JDXSetup jdxSetup = null;
+	private User userMe;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);	    
-		setContentView(R.layout.activity_timeline);	
-		setupPersistenceManager();	
+		setContentView(R.layout.activity_timeline);		
 		setupUserProfile();	
 		setupTabs();
 	}
 	
 	private void setupTabs() {
+		Bundle args = new Bundle();
+		args.putSerializable(User.USER_KEY, userMe);
+		
 		ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(true);
@@ -72,7 +61,7 @@ public class TimelineActivity extends FragmentActivity implements TimelineActivi
 				.setTabListener(
 						new FragmentTabListener<HomeTimeLineFragment>(
 								R.id.flContainer, this, "Home",
-								HomeTimeLineFragment.class));
+								HomeTimeLineFragment.class, args));
 		actionBar.addTab(tab1);
 		actionBar.selectTab(tab1);
 
@@ -84,38 +73,13 @@ public class TimelineActivity extends FragmentActivity implements TimelineActivi
 				.setTabListener(
 						new FragmentTabListener<MentionsTimeLineFragment>(
 								R.id.flContainer, this, "Mentions",
-								MentionsTimeLineFragment.class));
+								MentionsTimeLineFragment.class, args));
 		actionBar.addTab(tab2);
 	}
-
-	public PersistenceManager getPersistenceManager() {
-		return persistenceManager;
-	}
-	
-	private void setupPersistenceManager() {	
-		try {
-			AppSpecificJDXSetup.initialize(); // must be done before calling getInstance()
-			jdxSetup = AppSpecificJDXSetup.getInstance(this);
-			persistenceManager = new JDXPersistenceManagerImpl(jdxSetup);
-		} catch (Exception ex) {
-			Toast.makeText(getBaseContext(), "Exception: " + ex.getMessage(),
-					Toast.LENGTH_SHORT).show();
-			persistenceManager = null;
-		}
-	}
-	
-    /**
-     * Do the necessary cleanup.
-     */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        cleanup();
-    }
     
-    private void cleanup() {
-        AppSpecificJDXSetup.cleanup(); // Do this when the application is exiting.
-        jdxSetup = null;
+    public void onProfileView(MenuItem mi) {
+    	Intent i = new Intent(this, ProfileActivity.class);
+    	startActivity(i);
     }
 	
 	@Override
@@ -136,30 +100,40 @@ public class TimelineActivity extends FragmentActivity implements TimelineActivi
 		if (id == R.id.action_compose) {
 			// Create an intent for settings activity
 			Intent i = new Intent(TimelineActivity.this, ComposeTweetActivity.class);
-			// Pass image data in the intent
-			i.putExtra("user_handle", "@user");
+			// Pass user data in the intent
+			i.putExtra(User.USER_KEY, userMe);
 			// Launch the new activity
 			startActivityForResult(i, REQUEST_CODE);					
+			return true;
+		} else if (id == R.id.action_profile) {
+			// Create an intent for profile activity
+			Intent i = new Intent(this, ProfileActivity.class);
+			// Pass the user data
+			i.putExtra(User.USER_KEY, userMe);
+	    	startActivity(i);				
 			return true;
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}
 	
-	private void setupUserProfile() {
-		
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {			
+			Tweet newTweet = (Tweet) data.getSerializableExtra(Tweet.TWEET_KEY);
+			HomeTimeLineFragment homeTimeLineFragment = 
+					(HomeTimeLineFragment) getSupportFragmentManager().findFragmentByTag("Home");
+			homeTimeLineFragment.addATweet(newTweet);
+			Log.d("DEBUG", "In onActivityResult, tweetid=" + newTweet.getTweetId() + ", uid=" + newTweet.getUser().getUserId()); 
+		}
+	}
+	
+	private void setupUserProfile() {		
 		TwitterApplication.getRestClient().getUserInfo(new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(JSONObject response) {
-				try {
-					userHandle = "@" + response.getString("screen_name");
-					getActionBar().setTitle(userHandle);
-					String profileImageUrl = response.getString("profile_image_url");
-					storeUserProfile(userHandle, profileImageUrl);
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				userMe = User.fromJSON(response);
+				getActionBar().setTitle("@" + userMe.getScreenName());
 			}
 			
 			@Override
@@ -169,14 +143,4 @@ public class TimelineActivity extends FragmentActivity implements TimelineActivi
 			}
 		});
 	}
-	
-	private void storeUserProfile(String userHandle, String profileImageUrl) {
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-		Editor edit = pref.edit();
-		edit.putString("userHandle", userHandle);
-		edit.putString("profileImageUrl", profileImageUrl);
-		edit.commit();
-		// Log.d("Debug", "userHandle=" + userHandle + ", profileImageUrl=" + profileImageUrl);
-	}
-	
 }

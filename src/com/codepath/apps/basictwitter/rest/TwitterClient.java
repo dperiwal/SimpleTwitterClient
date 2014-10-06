@@ -53,7 +53,7 @@ public class TwitterClient extends OAuthBaseClient {
 	 */
 	
 	/**
-	 * Fetches more tweets. One of idHigherThan and idLowerThan has to be positive. 
+	 * Fetches more tweets in the given direction from the home timeline.
 	 * 
 	 * @param idHigherThan Provides since_id value (tweets with higher ids should be fetched)
 	 * @param idLowerThan Provides max_id value (tweets with lower ids should be fetched)
@@ -73,7 +73,7 @@ public class TwitterClient extends OAuthBaseClient {
 	}
 	
 	/**
-	 * Fetches more tweets which mentions the user. One of idHigherThan and idLowerThan has to be positive. 
+	 * Fetches more tweets in the given direction from the mentions timeline.
 	 * 
 	 * @param idHigherThan Provides since_id value (tweets with higher ids should be fetched)
 	 * @param idLowerThan Provides max_id value (tweets with lower ids should be fetched)
@@ -89,6 +89,29 @@ public class TwitterClient extends OAuthBaseClient {
 			params.put("max_id", Long.valueOf(idLowerThan - 1).toString());
 		}
 		params.put("count",  Integer.valueOf(count).toString());
+		client.get(apiUrl, params, handler);	
+	}
+	
+	/**
+	 * Fetches more user timeline tweets in the given direction from the user timeline. 
+	 * 
+	 * @param idHigherThan Provides since_id value (tweets with higher ids should be fetched)
+	 * @param idLowerThan Provides max_id value (tweets with lower ids should be fetched)
+	 * @param handler Callback
+	 */
+	public void getUserTimeline(FetchDirection direction, int count, long idHigherThan, long idLowerThan, long userId,
+			AsyncHttpResponseHandler handler) {
+		String apiUrl = getApiUrl("statuses/user_timeline.json");
+		RequestParams params = new RequestParams();
+		if (direction == FetchDirection.FORWARD) {
+			params.put("since_id", Long.valueOf(idHigherThan).toString());
+		} else {
+			params.put("max_id", Long.valueOf(idLowerThan - 1).toString());
+		}
+		params.put("count",  Integer.valueOf(count).toString());
+		if (userId != 0) {
+			params.put("user_id",  Long.valueOf(userId).toString());
+		}
 		client.get(apiUrl, params, handler);	
 	}
 		

@@ -7,9 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.softwaretree.jx.JXUtilities;
-
 public class Tweet implements Serializable {  
+	public static final String TWEET_KEY = "TWEET";
 	private static final long serialVersionUID = -7358883615455615013L;
 	private long tweetId; 
 	private String body;
@@ -17,11 +16,13 @@ public class Tweet implements Serializable {
 	private int retweetCount;
 	private int favoriteCount;
 	private String mediaURL;
+	private boolean mentionsMe;
 	private long userId;
 	private User user;
-	
+
 	public Tweet() {
 		super();
+		mentionsMe = false; // default
 	}
 
 	public long getTweetId() {
@@ -70,6 +71,14 @@ public class Tweet implements Serializable {
 
 	public void setMediaURL(String mediaURL) {
 		this.mediaURL = mediaURL;
+	}
+
+	public boolean getMentionsMe() {
+		return mentionsMe;
+	}
+
+	public void setMentionsMe(boolean mentionsMe) {
+		this.mentionsMe = mentionsMe;
 	}
 
 	public long getUserId() {

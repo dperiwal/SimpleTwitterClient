@@ -11,6 +11,6 @@ public class HomeTimeLineFragment extends TweetsListFragment {
 
 	@Override
 	protected PopulateTimeLine getTimelinePopulator() {
-		return new PopulateHomeTimeLine(getActivity(), tweets, aTweets);
+		return new PopulateHomeTimeLine(getUser(), getActivity(), tweets, aTweets);
 	}
 }
