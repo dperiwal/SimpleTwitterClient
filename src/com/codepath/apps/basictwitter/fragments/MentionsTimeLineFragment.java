@@ -6,6 +6,7 @@ import com.codepath.apps.basictwitter.utils.PopulateTimeLine;
 public class MentionsTimeLineFragment extends TweetsListFragment {
 
 	public MentionsTimeLineFragment() {
+		super();
 	}
 
 	@Override

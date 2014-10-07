@@ -75,12 +75,8 @@ public class TimelineActivity extends FragmentActivity {
 								R.id.flContainer, this, "Mentions",
 								MentionsTimeLineFragment.class, args));
 		actionBar.addTab(tab2);
+		getSupportFragmentManager().executePendingTransactions();
 	}
-    
-    public void onProfileView(MenuItem mi) {
-    	Intent i = new Intent(this, ProfileActivity.class);
-    	startActivity(i);
-    }
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -121,6 +117,7 @@ public class TimelineActivity extends FragmentActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {			
 			Tweet newTweet = (Tweet) data.getSerializableExtra(Tweet.TWEET_KEY);
+			getSupportFragmentManager().executePendingTransactions();
 			HomeTimeLineFragment homeTimeLineFragment = 
 					(HomeTimeLineFragment) getSupportFragmentManager().findFragmentByTag("Home");
 			homeTimeLineFragment.addATweet(newTweet);

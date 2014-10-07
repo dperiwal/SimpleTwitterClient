@@ -87,23 +87,23 @@ public abstract class PopulateTimeLine {
 	 * @param direction Forward or Backward
 	 */
 	public void fetchMore(final FetchDirection direction) {
-     /*    	Log.d("Debug", "In fetchMore, higherThan(" + idHigherThan + 
-				"), lowerThan(" + idLowerThan + ")");*/
+        Log.d("Debug", this.getClass().getSimpleName() + ":fetchMore, direction (" + direction + ", higherThan(" + idHigherThan + 
+				"), lowerThan(" + idLowerThan + ")");
 		
 		showProgressBar();
     	if (!Utils.isNetworkAvailable(containingActivity)) {
 			Log.i("INFO", Utils.NETWORK_UNAVAILABLE_MSG);
 			Toast.makeText(containingActivity, Utils.NETWORK_UNAVAILABLE_MSG, Toast.LENGTH_SHORT).show();
+			
+			//containingActivity.setProgressBarIndeterminateVisibility(false);
+			hideProgressBar();
 			if (direction == FetchDirection.FORWARD) {
 			    setRefreshing(false); 
 			}			
-
 			// Get tweets from the local database
 			List<Tweet> newTweets = getTweetsFromLocalDB(direction,idHigherThan, idLowerThan);
 			updateAdapter(direction, newTweets);
-
-			hideProgressBar();
-			//containingActivity.setProgressBarIndeterminateVisibility(false);			
+						
 			return;
 		}
     	
@@ -184,6 +184,7 @@ public abstract class PopulateTimeLine {
 				// Triggered only when new data needs to be appended to the list
 				// Add whatever code is needed to append new items to your
 				// AdapterView
+				Log.d("Debug", this.getClass().getSimpleName() + ":onLoadMore, page (" + page + ", totalItemsCount(" + totalItemsCount); 
 				fetchMore(FetchDirection.BACKWARD); // Get older tweets
 			}
 		});

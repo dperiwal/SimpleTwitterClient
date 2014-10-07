@@ -5,6 +5,10 @@ import com.codepath.apps.basictwitter.utils.PopulateUserTimeLine;
 
 public class UserTimeLineFragment extends TweetsListFragment {
 	
+	public UserTimeLineFragment() {
+		super();
+	}
+
 	@Override
 	protected PopulateTimeLine getTimelinePopulator() {
 		return new PopulateUserTimeLine(getUser(), getActivity(), tweets, aTweets);

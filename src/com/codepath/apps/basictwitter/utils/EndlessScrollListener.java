@@ -1,5 +1,6 @@
 package com.codepath.apps.basictwitter.utils;
 
+import android.util.Log;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 
@@ -35,6 +36,9 @@ public abstract class EndlessScrollListener implements OnScrollListener {
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) 
         {
+/*		Log.d("Debug", "In onScroll, firstVisibleItem(" + firstVisibleItem + "), visibleItemCount(" + 
+				visibleItemCount + "), totalItemCount(" + totalItemCount +
+			    "), previousTotalItemCount(" + previousTotalItemCount + ")");*/
 		// If the total item count is zero and the previous isn't, assume the
 		// list is invalidated and should be reset back to initial state
 		if (totalItemCount < previousTotalItemCount) {
