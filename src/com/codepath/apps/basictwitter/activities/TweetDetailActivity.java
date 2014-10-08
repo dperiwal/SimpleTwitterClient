@@ -130,8 +130,9 @@ public class TweetDetailActivity extends Activity {
 	private void setReplyVisibility(int visibility) {
 		rlTweetReplyLayout.setVisibility(visibility);
 		if (visibility == View.VISIBLE) {
-		    String startWith = "@" + currTweet.getUser().getScreenName();	
+		    String startWith = "@" + currTweet.getUser().getScreenName() + " ";	
 		    etTweetReply.setText(startWith);
+		    etTweetReply.setVisibility(View.VISIBLE);
 		}
 	}
 

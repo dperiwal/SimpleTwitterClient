@@ -74,8 +74,16 @@ public class FragmentTabListener<T extends Fragment> implements TabListener {
 		FragmentTransaction sft = mActivity.getSupportFragmentManager()
 				.beginTransaction();
 		if (mFragment != null) {
-			// Detach the fragment, because another one is being attached
-			sft.detach(mFragment);
+             // Detach the fragment, because another one is being attached
+			 sft.detach(mFragment);
+
+			 /*	// See: http://stackoverflow.com/questions/18274732/android-fragments-overlapping-issue
+			
+			// This is required since button click replaces fragment whose link
+			// is lost hence overlapping issue was occurring
+			sft.replace(mfragmentContainerId, mFragment);
+			// On Tab Change remove old fragment views
+			sft.remove(mFragment);*/
 		}
 		sft.commit();
 	}

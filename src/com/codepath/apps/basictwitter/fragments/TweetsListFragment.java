@@ -30,6 +30,8 @@ public abstract class TweetsListFragment extends Fragment {
 	protected ArrayAdapter<Tweet> aTweets;
 	protected ListView lvTweets;
 	protected User user;
+	protected boolean profileActivityListener = true; // by default
+
 	private PopulateTimeLine populateTimeLine;
 	
 	protected abstract PopulateTimeLine getTimelinePopulator();
@@ -38,7 +40,7 @@ public abstract class TweetsListFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		tweets = new ArrayList<Tweet>();
-		aTweets = new TweetArrayAdapter(getActivity(), tweets);
+		aTweets = new TweetArrayAdapter(getActivity(), tweets, profileActivityListener);
 		user = (User) getArguments().getSerializable(User.USER_KEY);
 		populateTimeLine = getTimelinePopulator();	
 		populateTimeLine.startPopulatingTimeLine();
@@ -80,6 +82,10 @@ public abstract class TweetsListFragment extends Fragment {
 		newTweets.add(newTweet);
 		populateTimeLine.saveTweetsInLocalDB(newTweets);
 		populateTimeLine.updateAdapter(PopulateTimeLine.FetchDirection.FORWARD, newTweets);	
+	}
+	
+	protected void setProfileActivityListener(boolean profileActivityListener) {
+		this.profileActivityListener = profileActivityListener;
 	}
 	
 	/**

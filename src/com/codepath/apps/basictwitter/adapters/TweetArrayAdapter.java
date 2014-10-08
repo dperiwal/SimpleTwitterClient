@@ -1,8 +1,10 @@
 package com.codepath.apps.basictwitter.adapters;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,10 +22,18 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class TweetArrayAdapter extends ArrayAdapter<Tweet> {
 
+	private boolean profileActivityListener = true; // by default
+	
 	public TweetArrayAdapter(Context context, List<Tweet> objects) {
 		super(context, R.layout.tweet_item, objects);
 	}
 	
+	public TweetArrayAdapter(Context context,
+			ArrayList<Tweet> tweets, boolean profileActivityListener) {
+		super(context, R.layout.tweet_item, tweets);
+		this.profileActivityListener = profileActivityListener;
+	}
+
 	// View lookup cache
 	private static class ViewHolder {
 		ImageView ivProfileImage;
@@ -58,22 +68,24 @@ public class TweetArrayAdapter extends ArrayAdapter<Tweet> {
 			viewHolder.tvCreationTime.setText("");
 			viewHolder.tvBody.setText("");
 		}
-		
-		viewHolder.ivProfileImage.setTag(tweet.getUser());
-		viewHolder.ivProfileImage.setOnClickListener(new OnClickListener() {
 			
-			// Start the activity to show the clicked users profile.
-			// TODO: Avoid recursive behavior: Don't go to ProfileActivity from within ProfileActivity.
-			@Override
-			public void onClick(View v) {
-				User user = (User) v.getTag();
-				// Create an intent for profile activity
-				Intent i = new Intent(getContext(), ProfileActivity.class);
-				// Pass the user data
-				i.putExtra(User.USER_KEY, user);
-				getContext().startActivity(i);				
-			}
-		});
+		if (profileActivityListener) {
+			viewHolder.ivProfileImage.setTag(tweet.getUser());
+			viewHolder.ivProfileImage.setOnClickListener(new OnClickListener() {
+				// Start the activity to show the clicked users profile.
+				// TODO: Avoid recursive behavior: Don't go to ProfileActivity
+				// from within ProfileActivity.
+				@Override
+				public void onClick(View v) {
+					User user = (User) v.getTag();
+					// Create an intent for profile activity
+					Intent i = new Intent(getContext(), ProfileActivity.class);
+					// Pass the user data
+					i.putExtra(User.USER_KEY, user);
+					getContext().startActivity(i);
+				}
+			});
+		}
 		
 		if (Utils.isNetworkAvailable(getContext())) {
 		    ImageLoader imageLoader = ImageLoader.getInstance();
@@ -86,7 +98,4 @@ public class TweetArrayAdapter extends ArrayAdapter<Tweet> {
 		
 		return convertView;
 	}
-	
-	
-
 }

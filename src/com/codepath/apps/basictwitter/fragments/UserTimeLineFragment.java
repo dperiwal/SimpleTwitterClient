@@ -7,10 +7,12 @@ public class UserTimeLineFragment extends TweetsListFragment {
 	
 	public UserTimeLineFragment() {
 		super();
+		setProfileActivityListener(false);
 	}
 
 	@Override
 	protected PopulateTimeLine getTimelinePopulator() {
 		return new PopulateUserTimeLine(getUser(), getActivity(), tweets, aTweets);
 	}
+	
 }
