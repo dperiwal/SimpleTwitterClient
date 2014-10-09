@@ -19,7 +19,7 @@ By Damodar Periwal
 
 <b>The following advanced user stories are implemented:</b>
 - Advanced: Robust error handling, check if internet is available, handle error cases, network failures
-- Advanced:  Uses JDX ORM for persistence in local SQLite database. JDX ORM is a product of Software Tree and is currently under beta.
+- Advanced:  Uses JDX ORM for persistence in local SQLite database. JDX ORM is a product of Software Tree and is currently under beta. The information about older tweets is automatically deleted from time-to-time when a threshold number of objects are detected.
 - Advanced: When a network request is sent, user sees an indeterminate progress indicator
 - Advanced: User can "reply" to any tweet on their home timeline 
     - The user that wrote the original tweet is automatically "@" replied in compose
