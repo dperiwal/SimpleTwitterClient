@@ -108,6 +108,7 @@ public class TweetReplyFragment extends Fragment {
 	    etTweetReply.setText(startWith);
 	    etTweetReply.setSelection(startWith.length());
 	    etTweetReply.requestFocus();
+	    
 		return v;	
 	}
 	
