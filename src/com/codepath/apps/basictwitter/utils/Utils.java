@@ -8,14 +8,24 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.text.format.DateUtils;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.codepath.apps.basictwitter.TwitterApplication;
+import com.codepath.apps.basictwitter.models.Tweet;
+import com.codepath.apps.basictwitter.rest.TwitterClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 public class Utils {
 	
 	static public final String NETWORK_UNAVAILABLE_MSG = "Network not available...";
+	public static TwitterClient client = TwitterApplication.getRestClient();
 	
 	public static boolean isNullOrEmpty(String str) {
 		return (str == null || str.trim().length() == 0);
@@ -105,4 +115,22 @@ public class Utils {
 
         return display;
     }
+	
+	public static void retweet(final Context context, final Tweet tweet) {
+		TwitterApplication.getRestClient().retweet(tweet.getTweetId(),
+				new JsonHttpResponseHandler() {
+					@Override
+					public void onSuccess(JSONObject response) {
+						Toast.makeText(context, "Retweet succesful.",
+								Toast.LENGTH_SHORT).show();
+						tweet.setRetweetCount(tweet.getRetweetCount() + 1);
+					}
+
+					@Override
+					public void onFailure(Throwable e, String error) {
+						Log.d("Debug", "In retweet:onFailure");
+						Log.d("Debug", error);
+					}
+				});
+	}
 }

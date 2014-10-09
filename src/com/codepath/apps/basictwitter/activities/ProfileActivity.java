@@ -4,14 +4,17 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.codepath.apps.basictwitter.R;
 import com.codepath.apps.basictwitter.fragments.UserTimeLineFragment;
 import com.codepath.apps.basictwitter.models.User;
+import com.codepath.apps.basictwitter.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class ProfileActivity extends FragmentActivity {
@@ -34,6 +37,12 @@ public class ProfileActivity extends FragmentActivity {
 	private void setupResources() {	
 		// Get the current user information passed in the intent.
 		thisUser = (User) getIntent().getSerializableExtra(User.USER_KEY);
+		if (thisUser == null) {
+			Log.i("INFO", "User information is not found...Aborting");
+			Toast.makeText(this, "User information is not found...Aborting", Toast.LENGTH_SHORT).show();
+			finish();  // Can't do much
+			return;
+		}
 		getActionBar().setTitle("@" + (thisUser.getScreenName()));
 		
 		ivUserImage = (ImageView) findViewById(R.id.ivUserImage);

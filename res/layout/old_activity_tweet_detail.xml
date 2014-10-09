@@ -57,13 +57,13 @@
         android:layout_alignRight="@+id/tvTweetBody"
         android:layout_below="@+id/tvTweetBody"
         android:layout_marginTop="10dp"
-        android:adjustViewBounds="true"
-        android:maxHeight="120dp"
-        android:maxWidth="240dp"
+        android:src="@drawable/ic_launcher"
         android:minHeight="50dp"
         android:minWidth="50dp"
+        android:maxHeight="120dp"
+        android:maxWidth="240dp"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_launcher" />
+        android:adjustViewBounds="true" />
 
     <TextView
         android:id="@+id/tvTimeStamp"
@@ -75,77 +75,114 @@
         android:text="@string/creation_time_text"
         android:textColor="#888888"
         android:textSize="10sp" />
-    
+
      <LinearLayout
         android:id="@+id/feedbackLayout"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        
         android:layout_below="@+id/tvTimeStamp" >
 
         <Button
             android:id="@+id/btnReplyTweet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
             android:background="#00000000"
-            android:drawableStart="@drawable/ic_twitter_reply"
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_action_reply"
             android:onClick="replyTweet"
             android:title="@string/reply_tile_text" />
 
-        <Button
-            android:id="@+id/btnRetweet"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginLeft="25dp"
-            android:drawableLeft="@drawable/ic_twitter_retweet"
-            android:background="#00000000"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:onClick="retweet"
-            android:title="@string/retweet_title" />
-        
-         <TextView
+        <TextView
             android:id="@+id/tvRetweetCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:drawableLeft="@drawable/ic_twitter_retweets"
+            android:drawablePadding="5dp"
+            android:title="@string/retweet_title"
             android:textSize="10sp"
-            android:textStyle="bold"
-            android:title="@string/retweet_title" />
+            android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btnFavorite"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginLeft="25dp"
-            android:background="#00000000"
-            android:drawableLeft="@drawable/ic_twitter_favorite"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:title="@string/favorite_title" >
-        </Button>
-            
         <TextView
             android:id="@+id/tvFavoriteCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:drawableLeft="@drawable/ic_twitter_favorite"
+            android:drawablePadding="5dp"
+             android:title="@string/favorite_title"
             android:textSize="10sp"
-            android:textStyle="bold"
-            android:title="@string/favorite_title" >
+            android:textStyle="bold" >
         </TextView>
-
+        
     </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/flTweetReply"
-        android:layout_width="wrap_content"
+    
+    <RelativeLayout
+        android:id="@+id/rlTweetReplyLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/feedbackLayout" >
-    </FrameLayout>
+        android:layout_below="@+id/feedbackLayout"
+        android:visibility="invisible" >
+
+       <EditText
+           android:id="@+id/etTweetReply"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_alignParentLeft="true"
+           android:layout_alignParentRight="true"
+           android:ems="10"
+           android:hint="@string/reply_hint_text"
+           android:inputType="textMultiLine"
+           android:maxLength="140"
+           android:maxLines="3"
+           android:scrollbarAlwaysDrawVerticalTrack="false"
+           android:scrollbars="vertical" >
+
+            <requestFocus />
+        </EditText>
+
+        <Button
+            android:id="@+id/btnPostReply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/etTweetReply"
+            android:layout_alignParentLeft="true"
+            android:background="#00000000"
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_action_send_now"
+            android:onClick="postReply" />
+
+        <Button
+            android:id="@+id/btnCancelReply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/etTweetReply"
+            android:layout_toRightOf="@+id/btnPostReply"
+            android:background="#00000000"
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_action_cancel"
+            android:onClick="cancelReply" />
+
+        <TextView
+            android:id="@+id/tvRemainingCharsCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/etTweetReply"
+            android:layout_alignRight="@+id/etTweetReply"
+            android:text="@string/max_tweet_chars_text" />
+
+        <TextView
+            android:id="@+id/tvRemainingCharsLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/tvRemainingCharsCount"
+            android:layout_alignBottom="@+id/tvRemainingCharsCount"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@+id/tvRemainingCharsCount"
+            android:text="@string/remaining_chars_text" />
+        
+    </RelativeLayout>
 
 </RelativeLayout>

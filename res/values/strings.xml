@@ -15,7 +15,7 @@
     <string name="title_activity_compose_tweet">Compose Tweet</string>
     <string name="cancel_text">Cancel</string>
     <string name="tweet_text">Tweet</string>
-    <string name="type_tweet_text">Type your tweet here...</string>
+    <string name="type_tweet_text">Type your tweet here&#8230;&#8230;&#8230;</string>
     <string name="handle_text">"@handle"</string>
     <string name="remaining_chars_text">"Remaining chars"</string>
     <string name="max_tweet_chars_text">140</string>
@@ -23,7 +23,8 @@
     <string name="reply_tile_text">Reply</string>
     <string name="retweet_title">Retweets</string>
     <string name="favorite_title">Favorites</string>
-    <string name="reply_hint_text">Please type your reply here...</string>
+    <string name="tweet_reply_prompt">Please type below a reply to the tweet</string>
+    <string name="reply_hint_text">Please type your reply here&#8230;&#8230;&#8230;</string>
     <string name="profile_text">Profile</string>
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="count_text">0</string>

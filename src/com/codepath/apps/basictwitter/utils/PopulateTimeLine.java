@@ -18,7 +18,7 @@ import android.widget.Toast;
 import com.codepath.apps.basictwitter.TwitterApplication;
 import com.codepath.apps.basictwitter.models.Tweet;
 import com.codepath.apps.basictwitter.models.User;
-import com.codepath.apps.basictwitter.persistence.PersistenceManager;
+import com.codepath.apps.basictwitter.persistence.TwitterPersistenceManager;
 import com.codepath.apps.basictwitter.rest.TwitterClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -53,7 +53,7 @@ public abstract class PopulateTimeLine {
 	private Activity containingActivity;
 	private SwipeRefreshLayout swipeContainer;
 
-	private PersistenceManager persistenceManager;
+	private TwitterPersistenceManager persistenceManager;
 	
 	// A concrete class should implement this call
 	protected abstract void makeRESTcall(User user, FetchDirection direction, int count, 

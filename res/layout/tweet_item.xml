@@ -66,5 +66,76 @@
         android:linksClickable="true"
         android:text="@string/tweet_body_text" 
         />
+    
+     <LinearLayout
+        android:id="@+id/feedbackLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        
+        android:layout_below="@+id/tvBody" >
+
+         <Button
+            android:id="@+id/btnReplyTweet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:background="#00000000"
+            android:drawableStart="@drawable/ic_twitter_reply"
+            android:onClick="replyTweet"
+            android:title="@string/reply_tile_text" />
+
+        <Button
+            android:id="@+id/btnRetweet"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="25dp"
+            android:drawableLeft="@drawable/ic_twitter_retweet"
+            android:background="#00000000"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:onClick="retweet"
+            android:title="@string/retweet_title" />
+        
+         <TextView
+            android:id="@+id/tvRetweetCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:title="@string/retweet_title" />
+
+        <Button
+            android:id="@+id/btnFavorite"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="25dp"
+            android:background="#00000000"
+            android:drawableLeft="@drawable/ic_twitter_favorite"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:title="@string/favorite_title" >
+        </Button>
+            
+        <TextView
+            android:id="@+id/tvFavoriteCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:title="@string/favorite_title" >
+        </TextView>
+    </LinearLayout>
+    
+    <FrameLayout
+        android:id="@+id/flTweetReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/feedbackLayout" >
+    </FrameLayout>
 
 </RelativeLayout>

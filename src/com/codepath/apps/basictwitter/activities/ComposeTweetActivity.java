@@ -48,6 +48,12 @@ public class ComposeTweetActivity extends Activity {
 	private void setupResources() {	
 		// Get the current user information passed in the intent.
 		thisUser = (User) getIntent().getSerializableExtra(User.USER_KEY);
+		if (thisUser == null) {
+			Log.i("INFO", "User information is not found...Aborting");
+			Toast.makeText(this, "User information is not found...Aborting", Toast.LENGTH_SHORT).show();
+			finish();  // Can't do much
+			return;
+		}
 		
 		TextView tvTweetHandle = (TextView) findViewById(R.id.tvTweeterHandle);
 		tvTweetHandle.setText(thisUser.getScreenName());

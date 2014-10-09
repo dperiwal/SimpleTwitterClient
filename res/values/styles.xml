@@ -13,6 +13,7 @@
     </style>
     
     <color name="twitter_theme_color">#55ACEE</color>
+    <!-- Changed from  #5055ACEE -->
     <color name="twitter_theme_color_light">#5055ACEE</color>
 
     <!-- ActionBar styles -->
@@ -26,9 +27,10 @@
        <item name="android:background">@color/twitter_theme_color</item>
     </style>
     
-     <style name="TwitterActionBarTabView" parent="android:style/Widget.Holo.Light.ActionBar.TabView">
+     <style name="TwitterActionBarTabView" parent="android:style/Widget.Holo.ActionBar.TabView">
        <!-- This is an White background -->
        <item name="android:background">@drawable/tab_bar_background</item>
+       
     </style>
     
     <style name="TwitterActionBarTabText" parent="android:style/Widget.Holo.ActionBar.TabText">

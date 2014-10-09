@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rlTweetReplyLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/twitter_theme_color_light"
+    android:visibility="visible" >
+    
+     <TextView
+        android:id="@+id/replyPrompt"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/tweet_reply_prompt" />
+
+    <EditText
+        android:id="@+id/etTweetReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/replyPrompt"
+        android:ems="10"
+        android:hint="@string/reply_hint_text"
+        android:inputType="textMultiLine"
+        android:textSize="12sp"
+        android:maxLength="140"
+        android:maxLines="3"
+        android:scrollbars="vertical" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/btnPostReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/etTweetReply"
+        android:background="#00000000"
+        android:drawablePadding="5dp"
+        android:drawableStart="@drawable/ic_action_send_now"/>
+
+    <Button
+        android:id="@+id/btnCancelReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etTweetReply"
+        android:layout_toRightOf="@+id/btnPostReply"
+        android:background="#00000000"
+        android:drawablePadding="5dp"
+        android:drawableStart="@drawable/ic_action_cancel" />
+
+    <TextView
+        android:id="@+id/tvRemainingCharsCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/etTweetReply"
+        android:layout_below="@+id/etTweetReply"
+        android:text="@string/max_tweet_chars_text" />
+
+    <TextView
+        android:id="@+id/tvRemainingCharsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvRemainingCharsCount"
+        android:layout_alignBottom="@+id/tvRemainingCharsCount"
+        android:layout_marginRight="5dp"
+        android:layout_toLeftOf="@+id/tvRemainingCharsCount"
+        android:text="@string/remaining_chars_text" />
+
+</RelativeLayout>
