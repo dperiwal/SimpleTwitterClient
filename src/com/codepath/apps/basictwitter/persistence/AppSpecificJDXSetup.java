@@ -1,7 +1,10 @@
 package com.codepath.apps.basictwitter.persistence;
 
+import android.content.ContextWrapper;
+
 import com.codepath.apps.basictwitter.R;
 import com.softwaretree.jdxandroid.BaseAppSpecificJDXSetup;
+import com.softwaretree.jdxandroid.JDXSetup;
 
 /**
  * This class is a shell to supply some basic application specific parameters 
@@ -12,6 +15,7 @@ import com.softwaretree.jdxandroid.BaseAppSpecificJDXSetup;
  * @author Damodar Periwal
  */
 public class AppSpecificJDXSetup extends BaseAppSpecificJDXSetup {
+	private static int ormId = R.raw.basic_twitter;
     
     /**
      * Initializes the ORMFileResourceId {@link #setORMFileResourceId(int)} of the file 
@@ -30,9 +34,17 @@ public class AppSpecificJDXSetup extends BaseAppSpecificJDXSetup {
      * This method should be called before calling the getInstance() method of this class.
      */
     public static void initialize() {
-        setORMFileResourceId(R.raw.basic_twitter);
-        setJdxForAndroidLicenseKey("_PJ01.0cCsupNaU0ulc85zsudN3R9hzR331zbR1Ts9wT99N5JDXi7LYI3154");
-        // setForceCreateSchema(true);
-        // setDebugLevel(3); // To see all the SQL statements in the log
+        setORMFileResourceId(ormId);
+        setJdxForAndroidLicenseKey(ormId, "_PJ01.0cCsupNaU0ulc85zsudN3R9hzR331zbR1Ts9wT99N5JDXi7LYI3154");
+        // setForceCreateSchema(ormId, true);
+        // setDebugLevel(ormId, 3); // To see all the SQL statements in the log
     }  
+    
+	public static JDXSetup getInstance(ContextWrapper contextWrapper) throws Exception {
+		return getInstance(ormId, contextWrapper);
+	}
+
+	public static void cleanup() {
+		cleanup(ormId);
+	}
 }
